@@ -4,6 +4,7 @@ import ServiceSection from "../Services/serviceSection";
 import ClientLogosMarquee from "../ClientLogosmarquee/ClientLogosMarquee";
 import FeatureSection from "../FeatureSection/FeatureSection";
 import HowItWorks from "../HowItWorks/HowItWorks";
+import BeMerchant from "../BeMerchant/BeMerchant";
 
 const Home = () => {
   return (
@@ -13,6 +14,7 @@ const Home = () => {
       <ServiceSection />
       <ClientLogosMarquee />
       <FeatureSection />
+      <BeMerchant />
     </div>
   );
 };

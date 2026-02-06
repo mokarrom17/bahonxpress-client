@@ -4,8 +4,8 @@ import FeatureCard from "./FeatureCard";
 
 // Import your images
 import img1 from "../../../assets/live-tracking.png";
-import img2 from "../../../assets/safe-delivery.png";
-import img3 from "../../../assets/tiny-deliveryman.png";
+import img2 from "../../../assets/tiny-deliveryman.png";
+import img3 from "../../../assets/safe-delivery.png";
 
 const features = [
   {

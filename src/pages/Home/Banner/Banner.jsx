@@ -8,7 +8,12 @@ import { Carousel } from "react-responsive-carousel";
 const Banner = () => {
   return (
     <div className="mb-12">
-      <Carousel autoPlay={true} infiniteLoop={true} showThumbs={false}>
+      <Carousel
+        autoPlay={true}
+        infiniteLoop={true}
+        showThumbs={false}
+        showArrows={false}
+      >
         <div>
           <img src={bannerImg1} />
         </div>
