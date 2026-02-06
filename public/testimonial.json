@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "name": "Awlad Hossin",
+    "role": "Senior Product Designer",
+    "avatar": "https://i.ibb.co/5YjvJjv/user1.png",
+    "quote": "A posture corrector works by providing support and gentle alignment to your shoulders, back, and spine, encouraging you to maintain proper posture throughout the day."
+  },
+  {
+    "id": 2,
+    "name": "Rasel Ahamed",
+    "role": "CTO",
+    "avatar": "https://i.ibb.co/4d1m6Tp/user2.png",
+    "quote": "A posture corrector works by supporting your upper body, reducing strain, and improving spinal alignment during long working hours."
+  },
+  {
+    "id": 3,
+    "name": "Nasir Uddin",
+    "role": "CEO",
+    "avatar": "https://i.ibb.co/WgXK3Fq/user3.png",
+    "quote": "Regular use of posture correctors encourages long-term healthy habits, stability, and comfort."
+  },
+  {
+    "id": 4,
+    "name": "Mehedi Hasan",
+    "role": "Marketing Manager",
+    "avatar": "https://i.ibb.co/9mrWS5f/user4.png",
+    "quote": "Posture alignment plays a vital role in reducing fatigue. This corrector keeps your shoulders balanced all day."
+  },
+  {
+    "id": 5,
+    "name": "Sadia Islam",
+    "role": "UX Researcher",
+    "avatar": "https://i.ibb.co/3Tq3Nj7/user5.png",
+    "quote": "A posture corrector helps ease muscle tension by maintaining proper shoulder alignment and reducing upper back stress."
+  },
+  {
+    "id": 6,
+    "name": "Tanvir Ahmed",
+    "role": "Product Manager",
+    "avatar": "https://i.ibb.co/QcbfXwP/user6.png",
+    "quote": "Using posture support enhances productivity and helps maintain a healthy sitting posture for long sessions."
+  },
+  {
+    "id": 7,
+    "name": "Jannatul Ferdous",
+    "role": "HR Coordinator",
+    "avatar": "https://i.ibb.co/2dq6YH0/user7.png",
+    "quote": "A posture corrector improves shoulder positioning, reduces discomfort, and supports your natural spine curve."
+  },
+  {
+    "id": 8,
+    "name": "Arif Chowdhury",
+    "role": "Software Engineer",
+    "avatar": "https://i.ibb.co/4s7t0Ns/user8.png",
+    "quote": "When worn regularly, posture correctors promote healthier alignment habits and relieve back pressure."
+  },
+  {
+    "id": 9,
+    "name": "Farzana Afroz",
+    "role": "Content Strategist",
+    "avatar": "https://i.ibb.co/7jHSfBD/user9.png",
+    "quote": "This support tool keeps your posture upright, helping you maintain comfort throughout your daily tasks."
+  },
+  {
+    "id": 10,
+    "name": "Shakhawat Hossain",
+    "role": "UI Designer",
+    "avatar": "https://i.ibb.co/8zkxLPr/user10.png",
+    "quote": "The posture corrector ensures gentle alignment and reduces fatigue, making long desk hours easier to manage."
+  }
+]
