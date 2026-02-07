@@ -33,9 +33,9 @@ const Testimonials = () => {
         </p>
       </div>
 
-      <div className="relative w-full py-8">
+      <div className="relative w-full pt-8 pb-24 sm:pb-32 lg:pb-40">
         {/* === Navigation + Pagination Wrapper === */}
-        <div className="absolute left-1/2 -bottom-10 -translate-x-1/2 z-20 flex items-center gap-5">
+        <div className="absolute left-1/2 bottom-10 -translate-x-1/2 z-20 flex items-center gap-5">
           {/* Prev */}
           <button className="swiper-prev p-3 bg-white hover:bg-[#CFEA74] border rounded-full shadow">
             <FaArrowLeft className="text-gray-600" />
@@ -53,7 +53,7 @@ const Testimonials = () => {
         <Swiper
           modules={[Navigation, Pagination]}
           slidesPerView={3}
-          centeredSlides={false} // <-- FIXED: ensures all cards same size
+          centeredSlides={true} // <-- FIXED: ensures all cards same size
           spaceBetween={30}
           loop={true}
           pagination={{ el: ".swiper-pagination", clickable: true }}
@@ -70,7 +70,7 @@ const Testimonials = () => {
         >
           {testimonials.map((testimonial) => (
             <SwiperSlide key={testimonial.id}>
-              <div className="bg-white p-8 rounded-2xl transition-all duration-300 shadow-md">
+              <div className="testimonial-card bg-white p-8 rounded-2xl transition-all duration-300 shadow-md">
                 <div className="flex justify-start mb-4">
                   <img
                     src={reviewQuote}
@@ -107,6 +107,25 @@ const Testimonials = () => {
 
         {/* Pagination styling */}
         <style>{`
+         /* Default style for all slides except active */
+          .swiper-slide .testimonial-card {
+            filter: blur(2px);
+            opacity: 0.4;
+            transform: scale(0.9);
+            transition: all 0.4s ease;
+          }
+
+          /* Active center slide */
+          .swiper-slide-active .testimonial-card {
+            filter: blur(0);
+            opacity: 1;
+            transform: scale(1);
+          }
+
+          /* Swiper transition smooth */
+          .swiper-slide {
+            transition: transform 0.4s ease, opacity 0.4s ease;
+          }
           .swiper-pagination-bullet {
             width: 10px;
             height: 10px;

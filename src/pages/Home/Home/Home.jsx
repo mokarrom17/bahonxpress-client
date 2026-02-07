@@ -6,6 +6,7 @@ import FeatureSection from "../FeatureSection/FeatureSection";
 import HowItWorks from "../HowItWorks/HowItWorks";
 import BeMerchant from "../BeMerchant/BeMerchant";
 import Testimonials from "../Testimonials/Testimonials";
+import Faq from "../FAQ/Faq";
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
       <FeatureSection />
       <BeMerchant />
       <Testimonials />
+      <Faq />
     </div>
   );
 };
