@@ -8,7 +8,7 @@ import { Link } from "react-router";
 
 const Footer = () => {
   return (
-    <footer className="footer footer-horizontal footer-center rounded-2xl bg-neutral text-neutral-content p-10 md:px-20 lg:px-32">
+    <footer className="footer footer-horizontal footer-center rounded-2xl bg-neutral text-neutral-content mt-12 p-10 md:px-20 lg:px-32">
       <aside>
         <BahonXpressLogo></BahonXpressLogo>
         <p className="font-bold">
