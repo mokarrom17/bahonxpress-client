@@ -84,10 +84,10 @@ const Coverage = () => {
       </div>
 
       {/* 🗺 Map */}
-      <div className="h-125 rounded-2xl overflow-hidden shadow-lg relative z-0">
+      <div className="h-140 rounded-2xl overflow-hidden shadow-lg relative z-0">
         <MapContainer
           center={bangladeshPosition}
-          zoom={7}
+          zoom={10}
           ref={mapRef}
           className="h-full w-full"
         >

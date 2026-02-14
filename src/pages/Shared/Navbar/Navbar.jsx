@@ -50,7 +50,12 @@ const Navbar = () => {
         <ul className="menu menu-horizontal px-1">{navItems}</ul>
       </div>
       <div className="navbar-end">
-        <a className="btn">Sign In</a>
+        <Link
+          to="/login"
+          className="btn px-8 py-4 btn-primary text-accent text-lg  font-bold"
+        >
+          Sign In
+        </Link>
       </div>
     </div>
   );

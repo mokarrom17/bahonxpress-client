@@ -30,7 +30,7 @@ const DistrictSearch = ({ districts, onSelectDistrict }) => {
 
   // 🔥 Handle Search Button Click
   const handleSearch = () => {
-    console.log("Filtered:", filteredDistricts);
+    // console.log("Filtered:", filteredDistricts);
     if (filteredDistricts.length > 0) {
       onSelectDistrict(filteredDistricts[0]); // প্রথম match select করবে
       setSearchTerm(filteredDistricts[0].district);
