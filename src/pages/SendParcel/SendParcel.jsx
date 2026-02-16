@@ -1,71 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLoaderData } from "react-router";
 import Swal from "sweetalert2";
+import useAuth from "../../hooks/useAuth";
+
+// Utility function to generate tracking ID
+const generateTrackingId = () => {
+  const date = new Date();
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+  return `BX-${year}${month}${day}-${random}`;
+};
 
 const SendParcel = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
+  const { user } = useAuth();
+
   const [cost, setCost] = useState(null);
-
-  const saveParcel = (data, cost) => {
-    const parcelData = {
-      ...data,
-      cost,
-      creation_date: new Date().toISOString(),
-    };
-    console.log("Saving to DB: ", parcelData);
-    Swal.fire({
-      icon: "success",
-      title: "Booking Successful!",
-      text: `Your parcel has been booked successfully. Charge: ${cost} Taka`,
-      confirmButtonColor: "#16a34a",
-    });
-    // Send to backend using axios/fetch here
-  };
-
-  const onSubmit = (data) => {
-    const weight = Number(data.parcelWeight);
-    const isDocument = data.type === "document";
-    const isSameDistrict = senderDistrict === receiverDistrict;
-
-    let cost = 0;
-
-    if (isDocument) {
-      cost = isSameDistrict ? 60 : 80;
-    } else {
-      if (weight <= 3) {
-        cost = isSameDistrict ? 110 : 150;
-      } else {
-        const extraKg = weight - 3;
-
-        if (isSameDistrict) {
-          cost = 110 + extraKg * 40;
-        } else {
-          cost = 150 + extraKg * 40 + 40;
-        }
-      }
-    }
-
-    setCost(cost);
-
-    Swal.fire({
-      title: "Confirm Booking?",
-      text: `Delivery charge will be ${cost} Taka`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Confirm Booking",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        saveParcel(data, cost);
-      }
-    });
-  };
-
   // Load districts data from loader
   const districts = useLoaderData();
   // Extract unique regions for sender dropdown
@@ -91,6 +53,85 @@ const SendParcel = () => {
   const receiverDistrictData = districts.find(
     (d) => d.district === receiverDistrict,
   );
+
+  const saveParcel = (data, cost) => {
+    const parcelData = {
+      ...data,
+      userEmail: user?.email, // ✅ logged-in user
+      cost: cost,
+      status: "pending", // ✅ initial status
+      delivery_status: "pending", // ✅ initial delivery status
+      deliveryType: "standard", // future upgrade
+      trackingId: generateTrackingId(), // ✅ generate tracking ID
+      createdAt: new Date().toISOString(), // ✅ proper ISO format
+    };
+    console.log("Saving to DB: ", parcelData);
+    Swal.fire({
+      icon: "success",
+      title: "Booking Successful!",
+      text: `Your parcel has been booked successfully. Charge: ${cost} Taka`,
+      confirmButtonColor: "#16a34a",
+    });
+    // Send to backend using axios/fetch here
+  };
+  // Watch parcel type and weight for cost calculation
+  const parcelType = watch("type");
+  const parcelWeight = watch("parcelWeight");
+
+  useEffect(() => {
+    if (!parcelType || !parcelWeight || !senderDistrict || !receiverDistrict) {
+      setCost(null);
+      return;
+    }
+
+    const weight = Number(parcelWeight);
+    const isDocument = parcelType === "document";
+    const isSameDistrict = senderDistrict === receiverDistrict;
+
+    let base = 0;
+    let extra = 0;
+    let outside = 0;
+
+    if (isDocument) {
+      base = isSameDistrict ? 60 : 80;
+    } else {
+      if (weight <= 3) {
+        base = isSameDistrict ? 110 : 150;
+      } else {
+        base = isSameDistrict ? 110 : 150;
+        extra = (weight - 3) * 40;
+
+        if (!isSameDistrict) {
+          outside = 40;
+        }
+      }
+    }
+
+    const total = base + extra + outside;
+
+    setCost({
+      base,
+      extra,
+      outside,
+      total,
+    });
+  }, [parcelType, parcelWeight, senderDistrict, receiverDistrict]);
+
+  const onSubmit = (data) => {
+    if (!cost) return;
+
+    Swal.fire({
+      title: "Confirm Booking?",
+      text: `Delivery charge will be ${cost} Taka`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Confirm Booking",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        saveParcel(data, cost);
+      }
+    });
+  };
 
   return (
     <div className="bg-base-100 text-neutral px-6 md:px-12 lg:px-28 py-12 md:py-16 lg:py-20 rounded-2xl shadow-lg">
@@ -356,8 +397,37 @@ const SendParcel = () => {
         {/* Note */}
         <p className="text-sm text-gray-500">* PickUp Time 4pm-7pm Approx.</p>
         {/* Estimated Cost */}
+
         {cost !== null && (
-          <div className="alert alert-info">Estimated Cost: {cost} Taka</div>
+          <div className="alert alert-info shadow-md text-lg font-semibold">
+            <div className="w-full space-y-1">
+              <div className="flex justify-between">
+                <span>Base Charge:</span>
+                <span>{cost.base} Taka</span>
+              </div>
+
+              {cost.extra > 0 && (
+                <div className="flex justify-between">
+                  <span>Extra Weight Charge:</span>
+                  <span>{cost.extra} Taka</span>
+                </div>
+              )}
+
+              {cost.outside > 0 && (
+                <div className="flex justify-between">
+                  <span>Outside District Charge:</span>
+                  <span>{cost.outside} Taka</span>
+                </div>
+              )}
+
+              <hr />
+
+              <div className="flex justify-between font-bold text-xl">
+                <span>Total:</span>
+                <span>{cost.total} Taka</span>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Submit */}
