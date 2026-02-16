@@ -8,42 +8,66 @@ import { Link } from "react-router";
 
 const Footer = () => {
   return (
-    <footer className="footer footer-horizontal footer-center rounded-2xl bg-neutral text-neutral-content mt-12 p-10 md:px-20 lg:px-32">
-      <aside>
-        <BahonXpressLogo></BahonXpressLogo>
-        <p className="font-bold">
-          Enjoy fast, reliable parcel delivery with real-time tracking and zero
-          hassle. From personal packages <br /> to business shipments — we
-          deliver on time, every time.
-        </p>
-      </aside>
+    <footer className="bg-neutral text-neutral-content mt-12 rounded-2xl">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-28 py-12 space-y-10">
+        {/* Logo + Description */}
+        <div className="text-center space-y-4">
+          <BahonXpressLogo />
 
-      <div className="flex gap-10">
-        <a className="link link-hover">Services</a>
-        <a className="link link-hover">Coverage</a>
-        <a className="link link-hover">About Us</a>
-        <a className="link link-hover">Pricing</a>
-        <a className="link link-hover">Blog</a>
-        <a className="link link-hover">Contact Us</a>
-      </div>
+          <p className="max-w-150 mx-auto text-sm sm:text-base text-gray-300">
+            Enjoy fast, reliable parcel delivery with real-time tracking and
+            zero hassle. From personal packages to business shipments — we
+            deliver on time, every time.
+          </p>
+        </div>
 
-      <nav>
-        <div className="grid grid-flow-col gap-6">
+        {/* Navigation Links */}
+        <div className="flex flex-wrap justify-center gap-6 sm:gap-8 text-sm sm:text-base">
+          <Link className="hover:text-primary transition">Services</Link>
+          <Link className="hover:text-primary transition">Coverage</Link>
+          <Link className="hover:text-primary transition">About Us</Link>
+          <Link className="hover:text-primary transition">Pricing</Link>
+          <Link className="hover:text-primary transition">Blog</Link>
+          <Link className="hover:text-primary transition">Contact Us</Link>
+        </div>
+
+        {/* Social Icons */}
+        <div className="flex justify-center gap-6">
           <Link>
-            <img src={facebook} alt="Facebook" />
+            <img
+              src={facebook}
+              alt="Facebook"
+              className="w-6 sm:w-7 hover:scale-110 transition"
+            />
           </Link>
           <Link>
-            <img src={twitter} alt="Twitter" />
+            <img
+              src={twitter}
+              alt="Twitter"
+              className="w-6 sm:w-7 hover:scale-110 transition"
+            />
           </Link>
           <Link>
-            <img src={linkedin} alt="LinkedIn" />
+            <img
+              src={linkedin}
+              alt="LinkedIn"
+              className="w-6 sm:w-7 hover:scale-110 transition"
+            />
           </Link>
           <Link>
-            <img src={youtube} alt="YouTube" />
+            <img
+              src={youtube}
+              alt="YouTube"
+              className="w-6 sm:w-7 hover:scale-110 transition"
+            />
           </Link>
         </div>
-      </nav>
-      <p>Copyright © {new Date().getFullYear()} - All right reserved</p>
+
+        {/* Copyright */}
+        <div className="text-center text-sm text-gray-400 pt-6 border-t border-gray-700">
+          © {new Date().getFullYear()} BahonXpress. All rights reserved.
+        </div>
+      </div>
     </footer>
   );
 };
