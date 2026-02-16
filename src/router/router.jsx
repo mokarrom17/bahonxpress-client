@@ -8,6 +8,7 @@ import Coverage from "../pages/Coverage/Coverage";
 import About from "../pages/About/About";
 import SendParcel from "../pages/SendParcel/SendParcel";
 import PrivateRoute from "../Routes/PrivateRoute";
+import { districts } from "../Data/warehouse";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
             <SendParcel />
           </PrivateRoute>
         ),
+        loader: () => districts,
       },
     ],
   },
