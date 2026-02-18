@@ -87,19 +87,21 @@ const SendParcel = () => {
     const weight = Number(parcelWeight);
     const isDocument = parcelType === "document";
     const isSameDistrict = senderDistrict === receiverDistrict;
+    const weightLimit = 3;
 
     let base = 0;
     let extra = 0;
     let outside = 0;
+    let extraKg = 0;
 
     if (isDocument) {
       base = isSameDistrict ? 60 : 80;
     } else {
-      if (weight <= 3) {
-        base = isSameDistrict ? 110 : 150;
-      } else {
-        base = isSameDistrict ? 110 : 150;
-        extra = (weight - 3) * 40;
+      base = isSameDistrict ? 110 : 150;
+
+      if (weight > weightLimit) {
+        extraKg = weight - weightLimit;
+        extra = extraKg * 40;
 
         if (!isSameDistrict) {
           outside = 40;
@@ -114,22 +116,167 @@ const SendParcel = () => {
       extra,
       outside,
       total,
+      extraKg,
     });
   }, [parcelType, parcelWeight, senderDistrict, receiverDistrict]);
 
   const onSubmit = (data) => {
     if (!cost) return;
 
+    const weight = Number(parcelWeight);
+    const isDocument = parcelType === "document";
+    const isSameDistrict = senderDistrict === receiverDistrict;
+    const weightLimit = 3;
+
     Swal.fire({
-      title: "Confirm Booking?",
-      text: `Delivery charge will be ${cost} Taka`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Confirm Booking",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        saveParcel(data, cost);
+      showConfirmButton: false,
+      width: 520,
+      background: "#ffffff",
+      html: `
+    <div style="font-family: 'Inter', sans-serif; text-align:left; padding:5px;">
+
+      <!-- Icon -->
+      <div style="text-align:center; margin-bottom:15px;">
+        <div style="
+          width:70px;
+          height:70px;
+          border-radius:50%;
+          border:3px solid #0ea5a4;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          margin:auto;
+          font-size:32px;
+          color:#0ea5a4;">
+          i
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h2 style="text-align:center; font-size:22px; font-weight:600; margin-bottom:20px;">
+        Delivery Cost Breakdown
+      </h2>
+
+      <!-- Parcel Info -->
+      <div style="line-height:1.8; font-size:15px;">
+        <div><strong>Parcel Type:</strong> ${parcelType}</div>
+        <div><strong>Weight:</strong> ${weight} kg</div>
+        <div><strong>Delivery Zone:</strong> ${
+          isSameDistrict ? "Within District" : "Outside District"
+        }</div>
+      </div>
+
+      <hr style="margin:15px 0;"/>
+
+      <!-- Base -->
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Base Cost:</strong></span>
+        <span>৳${cost.base}</span>
+      </div>
+
+      ${
+        !isDocument && cost.extra > 0
+          ? `
+          <div style="margin-top:12px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span><strong>Extra Charges:</strong></span>
+              <span>৳${cost.extra + cost.outside}</span>
+            </div>
+
+            <div style="margin-top:8px; font-size:13px; color:#555; line-height:1.6;">
+              NNon-document over ${weightLimit}kg ${
+                isSameDistrict
+                  ? "within the district."
+                  : "outside the district."
+              }
+              <br/>
+              Extra weight = ${weight}kg - ${weightLimit}kg = ${cost.extraKg}kg
+
+              <br/>
+              Weight charge: 40 × ${cost.extraKg}kg = ৳${cost.extra}
+              ${
+                cost.outside > 0
+                  ? `<br/>Outside district extra charge = ৳${cost.outside}`
+                  : ""
+              }
+            </div>
+          </div>
+          `
+          : !isDocument
+            ? `
+          <div style="margin-top:10px; font-size:13px; color:#555;">
+            Non-document up to ${weightLimit}kg ${
+              isSameDistrict ? "within the district." : "outside the district."
+            }
+            <br/>
+            Base rate applied.
+          </div>
+          `
+            : `
+          <div style="margin-top:10px; font-size:13px; color:#555;">
+            Document ${
+              isSameDistrict ? "within the district." : "outside the district."
+            }
+            <br/>
+            Flat rate applied.
+          </div>
+          `
       }
+
+      <hr style="margin:15px 0;"/>
+
+      <!-- Total -->
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:18px;
+        font-weight:700;
+        color:#15803d;">
+        <span>Total Cost:</span>
+        <span>৳${cost.total}</span>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex; gap:10px; margin-top:25px;">
+        <button id="paymentBtn"
+          style="
+            flex:1;
+            padding:12px;
+            background:#15803d;
+            color:white;
+            border:none;
+            border-radius:6px;
+            font-weight:600;
+            cursor:pointer;">
+          💳 Proceed to Payment
+        </button>
+
+        <button id="editBtn"
+          style="
+            flex:1;
+            padding:12px;
+            background:#e5e7eb;
+            color:#111;
+            border:none;
+            border-radius:6px;
+            font-weight:600;
+            cursor:pointer;">
+          ✏ Continue Editing
+        </button>
+      </div>
+
+    </div>
+    `,
+      didOpen: () => {
+        document.getElementById("paymentBtn").onclick = () => {
+          Swal.close();
+          saveParcel(data, cost);
+        };
+
+        document.getElementById("editBtn").onclick = () => {
+          Swal.close();
+        };
+      },
     });
   };
 
@@ -397,8 +544,7 @@ const SendParcel = () => {
         {/* Note */}
         <p className="text-sm text-gray-500">* PickUp Time 4pm-7pm Approx.</p>
         {/* Estimated Cost */}
-
-        {cost !== null && (
+        {/* {cost !== null && (
           <div className="alert alert-info shadow-md text-lg font-semibold">
             <div className="w-full space-y-1">
               <div className="flex justify-between">
@@ -428,7 +574,7 @@ const SendParcel = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Submit */}
         <div>
