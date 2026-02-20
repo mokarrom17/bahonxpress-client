@@ -1,22 +1,31 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import BahonXpressLogo from "../BahonXpressLogo/BahonXpressLogo";
+import useAuth from "../../../hooks/useAuth";
 
 const Navbar = () => {
+  const { user } = useAuth();
   const navItems = (
     <>
       <li>
-        <Link to="/">Home</Link>
+        <NavLink to="/">Home</NavLink>
       </li>
       <li>
-        <Link to="/about">About Us</Link>
+        <NavLink to="/about">About Us</NavLink>
       </li>
       <li>
-        <Link to="/coverage">Coverage</Link>
+        <NavLink to="/coverage">Coverage</NavLink>
       </li>
       <li>
-        <Link to="/send-parcel">Send Parcel</Link>
+        <NavLink to="/send-parcel">Send Parcel</NavLink>
       </li>
+      {user && (
+        <>
+          <li>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+          </li>
+        </>
+      )}
     </>
   );
   return (

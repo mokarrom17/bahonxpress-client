@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useLoaderData } from "react-router";
 import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 // Utility function to generate tracking ID
 const generateTrackingId = () => {
@@ -26,6 +27,8 @@ const SendParcel = () => {
   } = useForm();
 
   const { user } = useAuth();
+
+  const axiosSecure = useAxiosSecure();
 
   const [cost, setCost] = useState(null);
   // Load districts data from loader
@@ -54,26 +57,37 @@ const SendParcel = () => {
     (d) => d.district === receiverDistrict,
   );
 
-  const saveParcel = (data, cost) => {
-    const parcelData = {
-      ...data,
-      userEmail: user?.email, // ✅ logged-in user
-      cost: cost,
-      status: "pending", // ✅ initial status
-      delivery_status: "pending", // ✅ initial delivery status
-      deliveryType: "standard", // future upgrade
-      trackingId: generateTrackingId(), // ✅ generate tracking ID
-      createdAt: new Date().toISOString(), // ✅ proper ISO format
-    };
-    console.log("Saving to DB: ", parcelData);
-    Swal.fire({
-      icon: "success",
-      title: "Booking Successful!",
-      text: `Your parcel has been booked successfully. Charge: ${cost} Taka`,
-      confirmButtonColor: "#16a34a",
-    });
-    // Send to backend using axios/fetch here
+  const saveParcel = async (formData, costData) => {
+    try {
+      const parcelData = {
+        ...formData,
+        userEmail: user?.email,
+        cost: costData,
+        status: "pending",
+        delivery_status: "pending",
+        deliveryType: "standard",
+        trackingId: generateTrackingId(),
+        createdAt: new Date().toISOString(),
+      };
+
+      axiosSecure.post("/parcels", parcelData).then((res) => {
+        console.log(res.data);
+        if (res.data.insertedId) {
+          // Here i could redirect to a payment page or trigger a payment modal
+          Swal.fire({
+            icon: "success",
+            title: "Booking Successful!",
+            // text: `Tracking ID: ${parcelData.trackingId}`,
+            confirmButtonColor: "#16a34a",
+          });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to save parcel", "error");
+    }
   };
+
   // Watch parcel type and weight for cost calculation
   const parcelType = watch("type");
   const parcelWeight = watch("parcelWeight");
@@ -120,7 +134,7 @@ const SendParcel = () => {
     });
   }, [parcelType, parcelWeight, senderDistrict, receiverDistrict]);
 
-  const onSubmit = (data) => {
+  const onSubmit = (parcelData) => {
     if (!cost) return;
 
     const weight = Number(parcelWeight);
@@ -184,7 +198,7 @@ const SendParcel = () => {
             </div>
 
             <div style="margin-top:8px; font-size:13px; color:#555; line-height:1.6;">
-              NNon-document over ${weightLimit}kg ${
+              Non-document over ${weightLimit}kg ${
                 isSameDistrict
                   ? "within the district."
                   : "outside the district."
@@ -270,7 +284,7 @@ const SendParcel = () => {
       didOpen: () => {
         document.getElementById("paymentBtn").onclick = () => {
           Swal.close();
-          saveParcel(data, cost);
+          saveParcel(parcelData, cost);
         };
 
         document.getElementById("editBtn").onclick = () => {
