@@ -52,107 +52,109 @@ const MyParcels = () => {
   };
   console.log(parcels);
   return (
-    <div>
-      <div className="p-6 bg-base-100 shadow rounded-xl">
-        <h2 className="text-3xl font-bold mb-6">📦 My Parcels</h2>
+    <div className="p-4 py-10 ml-2 bg-base-100 shadow rounded-xl">
+      <h2 className="text-3xl font-bold mb-6">📦 My Parcels</h2>
 
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr className="text-base font-semibold">
-                <th>Tracking ID</th>
-                <th>Type</th>
-                <th>Weight</th>
-                <th>Route</th>
-                <th>Status</th>
-                <th>Payment</th>
-                <th>Cost</th>
-                <th>Date</th>
-                <th>Actions</th>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr className="text-base font-semibold">
+              <th>Tracking ID</th>
+              <th>Type</th>
+              <th>Weight</th>
+              <th>Route</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Cost</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {parcels.length === 0 && (
+              <tr>
+                <td colSpan="9" className="text-center py-6 text-gray-500">
+                  No parcel found.
+                </td>
               </tr>
-            </thead>
+            )}
 
-            <tbody>
-              {parcels.length === 0 && (
-                <tr>
-                  <td colSpan="9" className="text-center py-6 text-gray-500">
-                    No parcel found.
-                  </td>
-                </tr>
-              )}
+            {parcels.map((p) => (
+              <tr key={p._id} className="hover">
+                {/* Tracking */}
+                <td className="font-semibold text-primary">{p.trackingId}</td>
 
-              {parcels.map((p) => (
-                <tr key={p._id} className="hover">
-                  {/* Tracking */}
-                  <td className="font-semibold text-primary">{p.trackingId}</td>
+                {/* Type */}
+                <td>
+                  <div className="flex items-center gap-2 capitalize">
+                    {p.type === "document" ? "📄 Document" : "📦 Non-Document"}
+                  </div>
+                </td>
 
-                  {/* Type */}
-                  <td className="capitalize">{p.type}</td>
+                {/* Weight */}
+                <td>{p.type === "document" ? "—" : `${p.parcelWeight} kg`}</td>
 
-                  {/* Weight */}
-                  <td>{p.parcelWeight} kg</td>
+                {/* Route */}
+                <td>
+                  {p.senderWarehouse} → {p.receiverWarehouse}
+                </td>
 
-                  {/* Route */}
-                  <td>
-                    {p.senderWarehouse} → {p.receiverWarehouse}
-                  </td>
-
-                  {/* Delivery Status */}
-                  <td>
-                    <div
-                      className={`badge ${
-                        p.status === "pending"
-                          ? "badge-warning"
-                          : p.status === "delivered"
-                            ? "badge-success"
-                            : "badge-info"
-                      }`}
-                    >
-                      {p.status}
-                    </div>
-                  </td>
-
-                  {/* Payment Status - NEW */}
-                  <td>
-                    <div
-                      className={`badge ${
-                        p.paymentStatus === "paid"
+                {/* Delivery Status */}
+                <td>
+                  <div
+                    className={`badge ${
+                      p.status === "pending"
+                        ? "badge-warning"
+                        : p.status === "delivered"
                           ? "badge-success"
-                          : "badge-error"
-                      }`}
+                          : "badge-info"
+                    }`}
+                  >
+                    {p.status}
+                  </div>
+                </td>
+
+                {/* Payment Status - NEW */}
+                <td>
+                  <div
+                    className={`badge ${
+                      p.paymentStatus === "paid"
+                        ? "badge-success"
+                        : "badge-error"
+                    }`}
+                  >
+                    {p.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                  </div>
+                </td>
+
+                {/* Cost */}
+                <td>৳{p.cost?.total}</td>
+
+                {/* Date */}
+                <td>{new Date(p.createdAt).toLocaleString()}</td>
+
+                {/* Actions */}
+                <td className="flex gap-2">
+                  <button className="btn btn-xs btn-outline text-black btn-primary">
+                    Track
+                  </button>
+
+                  <button className="btn btn-xs btn-outline">View</button>
+
+                  {p.status === "pending" && (
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="btn btn-xs btn-outline btn-error"
                     >
-                      {p.paymentStatus === "paid" ? "Paid" : "Unpaid"}
-                    </div>
-                  </td>
-
-                  {/* Cost */}
-                  <td>৳{p.cost?.total}</td>
-
-                  {/* Date */}
-                  <td>{new Date(p.createdAt).toLocaleString()}</td>
-
-                  {/* Actions */}
-                  <td className="flex gap-2">
-                    <button className="btn btn-xs btn-outline text-black btn-primary">
-                      Track
+                      Cancel
                     </button>
-
-                    <button className="btn btn-xs btn-outline">View</button>
-
-                    {p.status === "pending" && (
-                      <button
-                        onClick={() => handleDelete(p._id)}
-                        className="btn btn-xs btn-outline btn-error"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

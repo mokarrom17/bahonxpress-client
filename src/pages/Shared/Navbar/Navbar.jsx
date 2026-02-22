@@ -4,7 +4,12 @@ import BahonXpressLogo from "../BahonXpressLogo/BahonXpressLogo";
 import useAuth from "../../../hooks/useAuth";
 
 const Navbar = () => {
-  const { user } = useAuth();
+  const { user, logOut } = useAuth();
+  const handleLogOut = () => {
+    logOut()
+      .then((result) => console.log(result))
+      .catch((error) => console.log(error));
+  };
   const navItems = (
     <>
       <li>
@@ -29,7 +34,7 @@ const Navbar = () => {
     </>
   );
   return (
-    <div className="navbar bg-base-100 shadow-sm mb-12">
+    <div className="navbar  sticky top-0 z-50 bg-base-100 shadow-sm mb-12">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -62,12 +67,21 @@ const Navbar = () => {
         <ul className="menu menu-horizontal px-1">{navItems}</ul>
       </div>
       <div className="navbar-end">
-        <Link
-          to="/login"
-          className="btn px-8 py-4 btn-primary text-accent text-lg  font-bold"
-        >
-          Sign In
-        </Link>
+        {user ? (
+          <button
+            onClick={handleLogOut}
+            className="btn px-8 py-4 btn-primary text-accent text-lg  font-bold"
+          >
+            Log Out
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="btn px-8 py-4 btn-primary text-accent text-lg  font-bold"
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </div>
   );
