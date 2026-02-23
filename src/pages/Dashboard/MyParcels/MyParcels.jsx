@@ -3,10 +3,14 @@ import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 const MyParcels = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+
+  const navigate = useNavigate();
+
   const { data: parcels = [], refetch } = useQuery({
     queryKey: ["my-parcels", user.email],
     queryFn: async () => {
@@ -14,6 +18,16 @@ const MyParcels = () => {
       return res.data;
     },
   });
+
+  const handleView = (id) => {
+    console.log("View Parcels", id);
+  };
+
+  const handlePay = (id) => {
+    console.log("Process to Payment for", id);
+    // You could open a modal or navigate to a detail page
+    navigate(`/dashboard/payment/${id}`);
+  };
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -30,7 +44,7 @@ const MyParcels = () => {
           .delete(`/parcels/${id}`)
           .then((res) => {
             console.log(res.data);
-            if (res.data.deleteCount) {
+            if (res.data.deletedCount) {
               Swal.fire({
                 icon: "success",
                 title: "Deleted!",
@@ -117,6 +131,7 @@ const MyParcels = () => {
 
                 {/* Payment Status - NEW */}
                 <td>
+                  {console.log("STATUS:", p.paymentStatus)}
                   <div
                     className={`badge ${
                       p.paymentStatus === "paid"
@@ -136,11 +151,21 @@ const MyParcels = () => {
 
                 {/* Actions */}
                 <td className="flex gap-2">
-                  <button className="btn btn-xs btn-outline text-black btn-primary">
-                    Track
+                  <button
+                    onClick={() => handleView(p._id)}
+                    className="btn btn-xs btn-outline text-black btn-primary"
+                  >
+                    View
                   </button>
 
-                  <button className="btn btn-xs btn-outline">View</button>
+                  {p.paymentStatus?.toLowerCase() === "unpaid" && (
+                    <button
+                      onClick={() => handlePay(p._id)}
+                      className="btn btn-xs btn-outline"
+                    >
+                      Pay
+                    </button>
+                  )}
 
                   {p.status === "pending" && (
                     <button
