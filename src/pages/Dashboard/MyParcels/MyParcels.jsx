@@ -97,7 +97,9 @@ const MyParcels = () => {
             {parcels.map((p) => (
               <tr key={p._id} className="hover">
                 {/* Tracking */}
-                <td className="font-semibold text-primary">{p.trackingId}</td>
+                <td className="font-semibold text-black">
+                  {p.trackingId.slice(0, 8)}...
+                </td>
 
                 {/* Type */}
                 <td>

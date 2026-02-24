@@ -90,6 +90,7 @@ const PaymentForm = () => {
             transactionId: result.paymentIntent.id,
             paymentMethod: result.paymentIntent.payment_method_types,
             status: "success",
+            paidAt: new Date().toISOString(),
           });
 
           // STEP 4C — Success UI message
