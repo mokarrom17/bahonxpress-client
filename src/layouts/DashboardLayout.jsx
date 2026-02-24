@@ -1,6 +1,10 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
+import { FaHome } from "react-icons/fa";
+import { FaBoxOpen } from "react-icons/fa6";
+import { MdPayment, MdLocationSearching } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
 
 const DashboardLayout = () => {
   return (
@@ -48,10 +52,34 @@ const DashboardLayout = () => {
             {/* Sidebar content here */}
             <BahonXpressLogo />
             <li>
-              <a>Home</a>
+              <NavLink to="/dashboard">
+                <FaHome className="inline-block mr-2" /> Home
+              </NavLink>
             </li>
+
             <li>
-              <NavLink to="/dashboard/my-parcels">My Parcels</NavLink>
+              <NavLink to="/dashboard/my-parcels">
+                <FaBoxOpen className="inline-block mr-2" /> My Parcels
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/dashboard/paymentHistory">
+                <MdPayment className="inline-block mr-2" /> Payment History
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/dashboard/track">
+                <MdLocationSearching className="inline-block mr-2" /> Track A
+                Package
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/dashboard/profile">
+                <CgProfile className="inline-block mr-2" /> Update Profile
+              </NavLink>
             </li>
           </ul>
         </div>
