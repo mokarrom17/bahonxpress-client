@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
 import { Link } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
+import axios from "axios";
 
 const Register = () => {
-  const { createUser } = useAuth();
+  const { createUser, updateUserProfile } = useAuth();
+  const [profilePic, setProfilePic] = useState("");
   const {
     register,
     handleSubmit,
@@ -14,13 +16,38 @@ const Register = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    createUser(data.email, data.password)
+    createUser(data.name, data.email, data.password)
       .then((result) => {
         console.log(result.user);
+        // update UserInfo in the database
+
+        // update user profile in the firebase
+        const userProfile = {
+          displayName: data.name,
+          photoURL: profilePic,
+        };
+        updateUserProfile(userProfile)
+          .then(() => {
+            console.log("Profile name pic updated");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
         console.error(error);
       });
+  };
+
+  const handleImageUpload = async (e) => {
+    const image = e.target.files[0];
+    console.log(image);
+    const formData = new FormData();
+    formData.append("image", image);
+    const imageUploadUrl = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_UPLOAD_KEY}`;
+
+    const res = await axios.post(imageUploadUrl, formData);
+    setProfilePic(res.data.data.url);
   };
 
   return (
@@ -43,6 +70,17 @@ const Register = () => {
             {errors.name && (
               <p className="text-red-500 text-sm">Name is Required</p>
             )}
+          </div>
+          {/* Profile Picture */}
+          <div>
+            <label className="block text-sm mb-1">Profile Picture</label>
+            <input
+              type="file"
+              name="profilePicture"
+              onChange={handleImageUpload}
+              className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#CAEB66]"
+              placeholder="Profile Picture"
+            />
           </div>
 
           {/* Email */}
