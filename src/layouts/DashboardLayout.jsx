@@ -1,9 +1,13 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaMotorcycle } from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
-import { MdPayment, MdLocationSearching } from "react-icons/md";
+import {
+  MdPayment,
+  MdLocationSearching,
+  MdPendingActions,
+} from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 
 const DashboardLayout = () => {
@@ -79,6 +83,19 @@ const DashboardLayout = () => {
             <li>
               <NavLink to="/dashboard/profile">
                 <CgProfile className="inline-block mr-2" /> Update Profile
+              </NavLink>
+            </li>
+            {/* New Rider Menu */}
+            <li>
+              <NavLink to="/dashboard/active-riders">
+                <FaMotorcycle className="inline-block mr-2" /> Active Riders
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink to="/dashboard/pending-riders">
+                <MdPendingActions className="inline-block mr-2" /> Pending
+                Riders
               </NavLink>
             </li>
           </ul>
