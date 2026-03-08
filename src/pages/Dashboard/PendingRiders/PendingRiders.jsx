@@ -21,38 +21,35 @@ const PendingRiders = () => {
   if (isPending) {
     return <span className="loading loading-bars loading-xl"></span>;
   }
-  //   Approve Rider
-  const handleApprove = async (id) => {
-    const res = await axiosSecure.patch(`/riders/approve/${id}`);
+  const handleDecision = async (id, status, email) => {
+    if (status === "rejected") {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "This rider application will be rejected!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, reject!",
+      });
+
+      if (!result.isConfirmed) return;
+    }
+
+    const res = await axiosSecure.patch(`/riders/status/${id}`, { status });
+
     if (res.data.modifiedCount > 0) {
-      Swal.fire("Approved!", "Rider is now active.", "success");
+      Swal.fire(
+        status === "approved" ? "Approved!" : "Rejected!",
+        status === "approved"
+          ? "Rider is now active."
+          : "Rider application rejected.",
+        "success",
+        email,
+      );
+
       refetch();
     }
-  };
-  // Reject Rider
-  const handleReject = async (id) => {
-    // 1️⃣ Show confirm dialog BEFORE API call
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This rider application will be rejected!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, reject!",
-    });
-
-    // 2️⃣ Only make API request if confirmed
-    if (result.isConfirmed) {
-      const res = await axiosSecure.patch(`/riders/reject/${id}`);
-
-      if (res.data.modifiedCount > 0) {
-        Swal.fire("Rejected!", "Rider application rejected.", "success");
-        refetch(); // reload table
-      }
-    }
-
-    // 3️⃣ If user cancels → do nothing
   };
   return (
     <div className="p-6 overflow-x-auto">
@@ -93,7 +90,9 @@ const PendingRiders = () => {
                 {/* Approve */}
                 <button
                   className="btn btn-sm btn-success text-white"
-                  onClick={() => handleApprove(rider._id)}
+                  onClick={() =>
+                    handleDecision(rider._id, "approved", rider.email)
+                  }
                 >
                   Approve
                 </button>
@@ -101,7 +100,9 @@ const PendingRiders = () => {
                 {/* Reject */}
                 <button
                   className="btn btn-sm btn-error text-white"
-                  onClick={() => handleReject(rider._id)}
+                  onClick={() =>
+                    handleDecision(rider._id, "rejected", rider.email)
+                  }
                 >
                   Reject
                 </button>
