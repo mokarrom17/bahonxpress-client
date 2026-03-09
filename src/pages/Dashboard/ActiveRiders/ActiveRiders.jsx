@@ -23,10 +23,9 @@ const ActiveRiders = () => {
     return <span className="loading loading-bars loading-xl"></span>;
   }
   const handleDeactivate = async (id) => {
-    // 1️⃣ First show confirm dialog BEFORE API call
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: "This rider will be deactivated!",
+      text: "This rider will be moved back to pending!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -34,18 +33,15 @@ const ActiveRiders = () => {
       confirmButtonText: "Yes, deactivate!",
     });
 
-    // 2️⃣ Only deactivate if confirmed
-    if (result.isConfirmed) {
-      const res = await axiosSecure.patch(`/riders/deactivate/${id}`);
+    if (!result.isConfirmed) return;
 
-      if (res.data.modifiedCount > 0) {
-        Swal.fire(
-          "Deactivated!",
-          "Rider moved back to pending list.",
-          "success",
-        );
-        refetch(); // reload table
-      }
+    const res = await axiosSecure.patch(`/riders/status/${id}`, {
+      status: "pending",
+    });
+
+    if (res.data.modifiedCount > 0) {
+      Swal.fire("Deactivated!", "Rider moved to pending list.", "success");
+      refetch();
     }
   };
 

@@ -21,16 +21,20 @@ const PendingRiders = () => {
   if (isPending) {
     return <span className="loading loading-bars loading-xl"></span>;
   }
-  const handleDecision = async (id, status, email) => {
+  const handleDecision = async (id, status) => {
     if (status === "rejected") {
       const result = await Swal.fire({
         title: "Are you sure?",
-        text: "This rider application will be rejected!",
+        text:
+          status === "approved"
+            ? "This rider will be approved!"
+            : "This rider application will be rejected!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
+        confirmButtonColor: status === "approved" ? "#16a34a" : "#d33",
         cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, reject!",
+        confirmButtonText:
+          status === "approved" ? "Yes, approve!" : "Yes, reject!",
       });
 
       if (!result.isConfirmed) return;
@@ -45,7 +49,6 @@ const PendingRiders = () => {
           ? "Rider is now active."
           : "Rider application rejected.",
         "success",
-        email,
       );
 
       refetch();
@@ -90,9 +93,7 @@ const PendingRiders = () => {
                 {/* Approve */}
                 <button
                   className="btn btn-sm btn-success text-white"
-                  onClick={() =>
-                    handleDecision(rider._id, "approved", rider.email)
-                  }
+                  onClick={() => handleDecision(rider._id, "approved")}
                 >
                   Approve
                 </button>
@@ -100,9 +101,7 @@ const PendingRiders = () => {
                 {/* Reject */}
                 <button
                   className="btn btn-sm btn-error text-white"
-                  onClick={() =>
-                    handleDecision(rider._id, "rejected", rider.email)
-                  }
+                  onClick={() => handleDecision(rider._id, "rejected")}
                 >
                   Reject
                 </button>
