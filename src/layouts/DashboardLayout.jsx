@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
-import { FaHome, FaMotorcycle } from "react-icons/fa";
+import { FaHome, FaMotorcycle, FaUserShield } from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
 import {
   MdPayment,
@@ -96,6 +96,11 @@ const DashboardLayout = () => {
               <NavLink to="/dashboard/pending-riders">
                 <MdPendingActions className="inline-block mr-2" /> Pending
                 Riders
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/make-admin">
+                <FaUserShield className="inline-block mr-2" /> Make Admin
               </NavLink>
             </li>
           </ul>
