@@ -146,15 +146,15 @@ const MakeAdmin = () => {
                   <td>
                     <span
                       className={`badge gap-1 ${
-                        user.isAdmin
+                        user.role === "admin"
                           ? "badge-error"
                           : user.role === "rider"
                             ? "badge-info"
                             : "badge-outline"
                       }`}
                     >
-                      {user.isAdmin && <MdAdminPanelSettings />}
-                      {user.isAdmin ? "admin" : user.role || "user"}
+                      {user.role === "admin" && <MdAdminPanelSettings />}
+                      {user.role || "user"}
                     </span>
                   </td>
 
@@ -165,7 +165,7 @@ const MakeAdmin = () => {
                   </td>
 
                   <td>
-                    {user.isAdmin ? (
+                    {user.role === "admin" ? (
                       <button
                         className="btn btn-error btn-sm flex items-center gap-2"
                         disabled={roleMutation.isPending}

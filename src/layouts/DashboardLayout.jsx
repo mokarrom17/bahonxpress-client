@@ -9,8 +9,20 @@ import {
   MdPendingActions,
 } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
+import useUserRole from "../hooks/UseUserRole";
 
 const DashboardLayout = () => {
+  const { role, roleLoading } = useUserRole();
+
+  if (roleLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-bars loading-lg"></span>
+      </div>
+    );
+  }
+
+  console.log("ROLE:", role);
   return (
     <div>
       <div className="drawer lg:drawer-open">
@@ -86,23 +98,26 @@ const DashboardLayout = () => {
               </NavLink>
             </li>
             {/* New Rider Menu */}
-            <li>
-              <NavLink to="/dashboard/active-riders">
-                <FaMotorcycle className="inline-block mr-2" /> Active Riders
-              </NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/dashboard/pending-riders">
-                <MdPendingActions className="inline-block mr-2" /> Pending
-                Riders
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/dashboard/make-admin">
-                <FaUserShield className="inline-block mr-2" /> Make Admin
-              </NavLink>
-            </li>
+            {!roleLoading && role === "admin" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/active-riders">
+                    <FaMotorcycle className="inline-block mr-2" /> Active Riders
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/pending-riders">
+                    <MdPendingActions className="inline-block mr-2" /> Pending
+                    Riders
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/make-admin">
+                    <FaUserShield className="inline-block mr-2" /> Make Admin
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
