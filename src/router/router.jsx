@@ -104,10 +104,9 @@ export const router = createBrowserRouter([
       {
         path: "pending-riders",
         element: (
-          <ActiveRiders>
-            {" "}
-            <PendingRiders />{" "}
-          </ActiveRiders>
+          <AdminRoute>
+            <PendingRiders />
+          </AdminRoute>
         ),
       },
       {

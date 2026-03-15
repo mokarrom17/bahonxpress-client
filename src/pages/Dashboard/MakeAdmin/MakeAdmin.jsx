@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import useAxios from "../../../hooks/useAxios";
+
 import Swal from "sweetalert2";
 import { FiSearch } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { FaUserShield } from "react-icons/fa";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const MakeAdmin = () => {
-  const axiosInstance = useAxios();
+  const axiosInstance = useAxiosSecure();
   const queryClient = useQueryClient();
 
   const [searchEmail, setSearchEmail] = useState("");
