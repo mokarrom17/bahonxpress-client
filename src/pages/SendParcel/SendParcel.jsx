@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
@@ -29,6 +29,7 @@ const SendParcel = () => {
   const { user } = useAuth();
 
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
   const [cost, setCost] = useState(null);
   // Load districts data from loader
@@ -61,6 +62,8 @@ const SendParcel = () => {
     try {
       const parcelData = {
         ...formData,
+        senderDistrict, // ✅ ADD
+        receiverDistrict,
         userEmail: user?.email,
         cost: costData,
         status: "pending",
@@ -69,6 +72,7 @@ const SendParcel = () => {
         trackingId: generateTrackingId(),
         createdAt: new Date().toISOString(),
       };
+      console.log(parcelData);
 
       axiosSecure.post("/parcels", parcelData).then((res) => {
         console.log(res.data);
@@ -80,6 +84,7 @@ const SendParcel = () => {
             // text: `Tracking ID: ${parcelData.trackingId}`,
             confirmButtonColor: "#16a34a",
           });
+          navigate("/dashboard/my-parcels");
         }
       });
     } catch (error) {
@@ -264,6 +269,7 @@ const SendParcel = () => {
             cursor:pointer;">
           💳 Proceed to Payment
         </button>
+        
 
         <button id="editBtn"
           style="

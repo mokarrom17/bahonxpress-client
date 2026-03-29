@@ -1,7 +1,13 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
-import { FaHome, FaMotorcycle, FaUserShield } from "react-icons/fa";
+import {
+  FaClipboardList,
+  FaHome,
+  FaMotorcycle,
+  FaTruck,
+  FaUserShield,
+} from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
 import {
   MdPayment,
@@ -100,6 +106,17 @@ const DashboardLayout = () => {
             {/* New Rider Menu */}
             {!roleLoading && role === "admin" && (
               <>
+                <li>
+                  <NavLink to="/dashboard/assign-rider">
+                    <FaTruck className="inline-block mr-2" /> Assign Rider
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/assigned-parcels">
+                    <FaClipboardList className="inline-block mr-2" /> Assigned
+                    Parcels
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink to="/dashboard/active-riders">
                     <FaMotorcycle className="inline-block mr-2" /> Active Riders
