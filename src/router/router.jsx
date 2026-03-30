@@ -22,6 +22,8 @@ import Forbidden from "../pages/Forbidden/Forbidden";
 import AdminRoute from "../Routes/AdminRoute";
 import AssignRider from "../pages/Dashboard/AssignRider/AssignRider";
 import AssignedParcels from "../pages/Dashboard/AssignedParcels/AssignedParcels";
+import RiderRoute from "../Routes/RiderRoute";
+import MyAssignedParcels from "../pages/Dashboard/MyAssignedParcels/MyAssignedParcels";
 
 export const router = createBrowserRouter([
   {
@@ -103,6 +105,16 @@ export const router = createBrowserRouter([
         path: "track",
         Component: TrackParcel,
       },
+      // Rider Routes
+      {
+        path: "my-assigned-parcels",
+        element: (
+          <RiderRoute>
+            <MyAssignedParcels />
+          </RiderRoute>
+        ),
+      },
+      // Admin Routes
       {
         path: "assign-rider",
         element: (

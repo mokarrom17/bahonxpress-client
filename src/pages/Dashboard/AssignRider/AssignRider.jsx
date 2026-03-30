@@ -66,6 +66,7 @@ const AssignRider = () => {
         setSelectedRider(null);
 
         queryClient.invalidateQueries(["assign-parcels"]);
+        queryClient.invalidateQueries(["assigned-parcels"]);
       }
     } catch (error) {
       console.log(error);

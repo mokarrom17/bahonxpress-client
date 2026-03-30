@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
 import {
+  FaBox,
   FaClipboardList,
   FaHome,
   FaMotorcycle,
@@ -103,7 +104,17 @@ const DashboardLayout = () => {
                 <CgProfile className="inline-block mr-2" /> Update Profile
               </NavLink>
             </li>
-            {/* New Rider Menu */}
+            {/* Rider Menu */}
+            {!roleLoading && role === "rider" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/my-assigned-parcels">
+                    <FaBox className="inline-block mr-2" /> My Assigned Parcels
+                  </NavLink>
+                </li>
+              </>
+            )}
+            {/* Admin Menu */}
             {!roleLoading && role === "admin" && (
               <>
                 <li>
