@@ -3,6 +3,7 @@ import { NavLink, Outlet } from "react-router";
 import BahonXpressLogo from "../pages/Shared/BahonXpressLogo/BahonXpressLogo";
 import {
   FaBox,
+  FaCheckCircle,
   FaClipboardList,
   FaHome,
   FaMotorcycle,
@@ -110,6 +111,12 @@ const DashboardLayout = () => {
                 <li>
                   <NavLink to="/dashboard/my-assigned-parcels">
                     <FaBox className="inline-block mr-2" /> My Assigned Parcels
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/completed-deliveries">
+                    <FaCheckCircle className="inline-block mr-2" />
+                    Completed Deliveries
                   </NavLink>
                 </li>
               </>

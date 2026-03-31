@@ -24,6 +24,7 @@ import AssignRider from "../pages/Dashboard/AssignRider/AssignRider";
 import AssignedParcels from "../pages/Dashboard/AssignedParcels/AssignedParcels";
 import RiderRoute from "../Routes/RiderRoute";
 import MyAssignedParcels from "../pages/Dashboard/MyAssignedParcels/MyAssignedParcels";
+import CompletedDeliveries from "../pages/Dashboard/CompletedDeliveries/CompletedDeliveries";
 
 export const router = createBrowserRouter([
   {
@@ -111,6 +112,14 @@ export const router = createBrowserRouter([
         element: (
           <RiderRoute>
             <MyAssignedParcels />
+          </RiderRoute>
+        ),
+      },
+      {
+        path: "completed-deliveries",
+        element: (
+          <RiderRoute>
+            <CompletedDeliveries />
           </RiderRoute>
         ),
       },
