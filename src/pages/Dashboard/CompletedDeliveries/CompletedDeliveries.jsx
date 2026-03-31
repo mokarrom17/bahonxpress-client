@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const CompletedDeliveries = () => {
   const axiosSecure = useAxiosSecure();
@@ -13,7 +14,9 @@ const CompletedDeliveries = () => {
   });
 
   // 🔥 Total earning
-  const totalEarning = parcels.reduce((sum, p) => sum + (p.earning || 0), 0);
+  const totalEarning = parcels
+    .filter((p) => !p.isCashedOut)
+    .reduce((sum, p) => sum + (p.earning || 0), 0);
 
   if (isLoading) {
     return (
@@ -23,16 +26,44 @@ const CompletedDeliveries = () => {
     );
   }
 
+  const handleCashOut = async () => {
+    try {
+      const res = await axiosSecure.post("/cashOut");
+
+      if (res.data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "CashOut Requested",
+          text: "Admin will process your payment",
+        });
+
+        // 🔥 IMPORTANT: refetch data
+        QueryClient.invalidateQueries(["completed-deliveries"]);
+      } else {
+        Swal.fire("Info", res.data.message, "info");
+      }
+    } catch {
+      Swal.fire("Error", "CashOut failed", "error");
+    }
+  };
+
   return (
     <div className="p-6">
       {/* Title */}
       <h2 className="text-2xl font-bold mb-4">Completed Deliveries</h2>
 
       {/* 🔥 Total Earning Card */}
-      <div className="mb-6 p-4 bg-green-100 rounded-lg shadow-sm">
+      <div className="mb-6 flex justify-between items-center p-4 bg-green-100 rounded-lg shadow-sm">
         <h3 className="text-xl font-semibold text-green-700">
           Total Earnings: ৳{totalEarning.toLocaleString()}
         </h3>
+        <button
+          disabled={totalEarning === 0}
+          onClick={handleCashOut}
+          className="btn btn-success mt-3"
+        >
+          CashOut
+        </button>
       </div>
 
       {/* Table */}
