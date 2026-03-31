@@ -1,13 +1,12 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { useState } from "react";
-import Swal from "sweetalert2";
 
 const AssignedParcels = () => {
   const axiosSecure = useAxiosSecure();
-  const queryClient = useQueryClient();
 
   const [filter, setFilter] = useState("all");
+  const [selectedParcel, setSelectedParcel] = useState(null);
 
   // 🔥 Fetch assigned parcels
   const { data: parcels = [], isLoading } = useQuery({
@@ -17,29 +16,6 @@ const AssignedParcels = () => {
       return res.data;
     },
   });
-
-  // 🔥 Status update function
-  const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      const res = await axiosSecure.patch(`/parcels/update-status/${id}`, {
-        status: newStatus,
-      });
-
-      if (res.data.modifiedCount > 0) {
-        Swal.fire({
-          icon: "success",
-          title: `Updated to ${newStatus}`,
-          timer: 1200,
-          showConfirmButton: false,
-        });
-
-        queryClient.invalidateQueries(["assigned-parcels"]);
-      }
-    } catch (error) {
-      console.log(error);
-      Swal.fire("Error", "Update failed", "error");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -85,7 +61,7 @@ const AssignedParcels = () => {
               <th>Rider</th>
               <th>Cost</th>
               <th>Status</th>
-              <th>Action</th>
+              <th>View</th>
             </tr>
           </thead>
 
@@ -102,7 +78,6 @@ const AssignedParcels = () => {
 
                 <td>{parcel.receiverName}</td>
 
-                {/* Rider */}
                 <td>{parcel.riderEmail || "N/A"}</td>
 
                 <td>৳ {parcel.cost?.total}</td>
@@ -124,38 +99,14 @@ const AssignedParcels = () => {
                   </span>
                 </td>
 
-                {/* Action */}
-                <td className="space-x-2">
-                  {parcel.delivery_status === "rider_assigned" && (
-                    <button
-                      className="btn btn-xs btn-primary text-black"
-                      onClick={() => handleStatusUpdate(parcel._id, "picked")}
-                    >
-                      Picked
-                    </button>
-                  )}
-
-                  {parcel.delivery_status === "picked" && (
-                    <button
-                      className="btn btn-xs btn-info"
-                      onClick={() =>
-                        handleStatusUpdate(parcel._id, "in_transit")
-                      }
-                    >
-                      Transit
-                    </button>
-                  )}
-
-                  {parcel.delivery_status === "in_transit" && (
-                    <button
-                      className="btn btn-xs btn-success"
-                      onClick={() =>
-                        handleStatusUpdate(parcel._id, "delivered")
-                      }
-                    >
-                      Delivered
-                    </button>
-                  )}
+                {/* 🔥 View Button */}
+                <td>
+                  <button
+                    className="btn btn-xs btn-outline btn-primary text-black"
+                    onClick={() => setSelectedParcel(parcel)}
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
@@ -166,6 +117,80 @@ const AssignedParcels = () => {
           <p className="text-center mt-6 text-gray-500">No parcels found</p>
         )}
       </div>
+
+      {/* 🔥 Modal */}
+      {selectedParcel && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/10 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[90%] max-w-lg">
+            <h3 className="text-xl font-bold mb-4">Parcel Details</h3>
+
+            <div className="space-y-2 text-sm">
+              <p>
+                <b>Tracking:</b> {selectedParcel.trackingId}
+              </p>
+              <p>
+                <b>Parcel:</b> {selectedParcel.parcelName}
+              </p>
+
+              <p>
+                <b>Sender:</b> {selectedParcel.senderName}
+              </p>
+              <p>
+                <b>Sender Phone:</b> {selectedParcel.senderPhone}
+              </p>
+
+              <p>
+                <b>Receiver:</b> {selectedParcel.receiverName}
+              </p>
+              <p>
+                <b>Receiver Phone:</b> {selectedParcel.receiverPhone}
+              </p>
+              <p>
+                <b>Address:</b> {selectedParcel.receiverAddress}
+              </p>
+
+              <p>
+                <b>District:</b> {selectedParcel.senderDistrict} →{" "}
+                {selectedParcel.receiverDistrict}
+              </p>
+
+              <p>
+                <b>Cost:</b> ৳ {selectedParcel.cost?.total}
+              </p>
+
+              <p>
+                <b>Status:</b> {selectedParcel.delivery_status}
+              </p>
+
+              <p>
+                <b>Rider:</b> {selectedParcel.riderEmail || "Not assigned"}
+              </p>
+
+              <p>
+                <b>Created:</b>{" "}
+                {new Date(selectedParcel.createdAt).toLocaleString()}
+              </p>
+
+              {/* 🔥 Optional earning */}
+              {selectedParcel.earning && (
+                <p>
+                  <b>Earning:</b> ৳ {selectedParcel.earning}
+                </p>
+              )}
+            </div>
+
+            {/* Close */}
+            <div className="mt-4 text-right">
+              <button
+                className="btn btn-sm"
+                onClick={() => setSelectedParcel(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
