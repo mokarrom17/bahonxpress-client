@@ -25,6 +25,7 @@ import AssignedParcels from "../pages/Dashboard/AssignedParcels/AssignedParcels"
 import RiderRoute from "../Routes/RiderRoute";
 import MyAssignedParcels from "../pages/Dashboard/MyAssignedParcels/MyAssignedParcels";
 import CompletedDeliveries from "../pages/Dashboard/CompletedDeliveries/CompletedDeliveries";
+import MyEarnings from "../pages/Dashboard/MyEarnings/MyEarnings";
 
 export const router = createBrowserRouter([
   {
@@ -120,6 +121,14 @@ export const router = createBrowserRouter([
         element: (
           <RiderRoute>
             <CompletedDeliveries />
+          </RiderRoute>
+        ),
+      },
+      {
+        path: "my-earnings",
+        element: (
+          <RiderRoute>
+            <MyEarnings />
           </RiderRoute>
         ),
       },

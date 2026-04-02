@@ -9,6 +9,7 @@ import {
   FaMotorcycle,
   FaTruck,
   FaUserShield,
+  FaWallet,
 } from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
 import {
@@ -117,6 +118,12 @@ const DashboardLayout = () => {
                   <NavLink to="/dashboard/completed-deliveries">
                     <FaCheckCircle className="inline-block mr-2" />
                     Completed Deliveries
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/dashboard/my-earnings">
+                    <FaWallet className="inline-block mr-2" />
+                    My Earnings
                   </NavLink>
                 </li>
               </>

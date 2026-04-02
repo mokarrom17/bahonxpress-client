@@ -1,9 +1,10 @@
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 
 const CompletedDeliveries = () => {
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
   const { data: parcels = [], isLoading } = useQuery({
     queryKey: ["completed-deliveries"],
@@ -27,26 +28,34 @@ const CompletedDeliveries = () => {
   }
 
   const handleCashOut = async () => {
-    try {
-      const res = await axiosSecure.post("/cashOut");
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to cash out your earnings?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, CashOut",
+    });
 
-      if (res.data.success) {
-        Swal.fire({
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await axiosSecure.post("/cashout");
+
+      if (res.data?.success) {
+        await Swal.fire({
           icon: "success",
-          title: "CashOut Requested",
-          text: "Admin will process your payment",
+          title: "CashOut Successful",
         });
 
-        // 🔥 IMPORTANT: refetch data
-        QueryClient.invalidateQueries(["completed-deliveries"]);
+        queryClient.invalidateQueries(["completed-deliveries"]); // ✅ FIX
       } else {
-        Swal.fire("Info", res.data.message, "info");
+        Swal.fire("Info", res.data?.message || "No earnings", "info");
       }
-    } catch {
+    } catch (error) {
+      console.log("ERROR:", error);
       Swal.fire("Error", "CashOut failed", "error");
     }
   };
-
   return (
     <div className="p-6">
       {/* Title */}
