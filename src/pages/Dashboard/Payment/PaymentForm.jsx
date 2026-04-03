@@ -14,114 +14,128 @@ const PaymentForm = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
+  // ✅ Load parcel info
   const { data: parcelInfo = {}, isPending } = useQuery({
-    queryKey: ["parcels", parcelId],
+    queryKey: ["parcel", parcelId],
     queryFn: async () => {
       const res = await axiosSecure.get(`/parcels/${parcelId}`);
       return res.data;
     },
   });
+
   if (isPending) {
     return <span className="loading loading-bars loading-xl"></span>;
   }
 
-  console.log(parcelInfo);
-
   const amount = parcelInfo.cost?.total || 0;
   const amountInCents = amount * 100;
-  console.log(amountInCents);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
-    const card = elements.getElement(CardElement);
+    // 🔒 Prevent multiple clicks
+    if (isProcessing) return;
+    setIsProcessing(true);
 
-    if (!card) {
-      return;
-    }
+    try {
+      // 🔒 Stripe ready check
+      if (!stripe || !elements) {
+        setIsProcessing(false);
+        return;
+      }
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card,
-    });
+      const card = elements.getElement(CardElement);
+      if (!card) {
+        setIsProcessing(false);
+        return;
+      }
 
-    if (error) {
-      setError(error.message);
-    } else {
+      // 🔒 Prevent duplicate payment
+      if (parcelInfo.paymentStatus === "paid") {
+        Swal.fire("Already Paid!", "This parcel is already paid.", "info");
+        setIsProcessing(false);
+        return;
+      }
+
       setError("");
-      console.log("payment method", paymentMethod);
-      //step-2: Create Payment Intent
+
+      // ✅ Create payment intent
       const res = await axiosSecure.post("/create-payment-intent", {
         amountInCents,
         parcelId,
       });
+
       const clientSecret = res.data.clientSecret;
-      // step-3:Confirm Payment
+
+      // ✅ Confirm payment
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: elements.getElement(CardElement),
+          card,
           billing_details: {
-            name: user.displayName,
-            email: user.email,
+            name: user?.displayName || "Anonymous",
+            email: user?.email,
           },
         },
       });
+
       if (result.error) {
         setError(result.error.message);
-      } else {
-        setError("");
-        if (result.paymentIntent.status === "succeeded") {
-          console.log("Payment Succeeded");
-          console.log(result);
-
-          // STEP 4A — Update parcel payment status
-          await axiosSecure.patch(`/parcels/payment/${parcelId}`);
-
-          // STEP 4B — Save payment history
-          await axiosSecure.post("/payments", {
-            parcelId,
-            userEmail: user.email,
-            amount: amount, // in BDT
-            transactionId: result.paymentIntent.id,
-            paymentMethod: result.paymentIntent.payment_method_types,
-            status: "success",
-            paidAt: new Date().toISOString(),
-          });
-
-          // STEP 4C — Success UI message
-          Swal.fire({
-            icon: "success",
-            title: "Payment Successful!",
-            text: "Your parcel is now paid.",
-            confirmButtonColor: "#16a34a",
-          });
-
-          // Redirect user if needed:
-          navigate("/dashboard/my-parcels");
-        }
+        setIsProcessing(false);
+        return;
       }
-      console.log("res from intent", res);
+
+      // ✅ Success flow
+      if (result.paymentIntent.status === "succeeded") {
+        // 🔥 Update parcel payment
+        await axiosSecure.patch(`/parcels/payment/${parcelId}`);
+
+        // 🔥 Save payment history
+        await axiosSecure.post("/payments", {
+          parcelId,
+          userEmail: user.email,
+          amount,
+          transactionId: result.paymentIntent.id,
+          paymentMethod: result.paymentIntent.payment_method_types,
+          status: "success",
+          paidAt: new Date().toISOString(),
+        });
+
+        Swal.fire({
+          icon: "success",
+          title: "Payment Successful!",
+          text: "Your parcel is now paid.",
+          confirmButtonColor: "#16a34a",
+        });
+
+        navigate("/dashboard/my-parcels");
+      }
+    } catch (err) {
+      console.error("Payment Error:", err);
+      setError("Something went wrong. Please try again.");
     }
+
+    setIsProcessing(false);
   };
+
   return (
     <div>
       <form
         onSubmit={handleSubmit}
-        className="space-y-4  bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto"
+        className="space-y-4 bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto"
       >
-        <CardElement className="p-4 border rounded-md"></CardElement>
+        <CardElement className="p-4 border rounded-md" />
+
         <button
           className="btn btn-primary text-black mt-4 w-full"
           type="submit"
-          disabled={!stripe}
+          disabled={!stripe || isProcessing}
         >
-          Pay${amount}
+          {isProcessing ? "Processing..." : `Pay ৳${amount}`}
         </button>
+
         {error && <p className="text-red-600">{error}</p>}
       </form>
     </div>

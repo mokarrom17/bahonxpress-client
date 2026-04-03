@@ -8,26 +8,24 @@ const TrackParcel = () => {
   const [inputId, setInputId] = useState(urlTrackingId || "");
   const axiosSecure = useAxiosSecure();
 
-  const { data, isPending, refetch } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["track", inputId],
     queryFn: async () => {
       const res = await axiosSecure.get(`/track/${inputId}`);
       return res.data;
     },
-    enabled: !!inputId,
+    enabled: false, // 🔥 manual control
   });
 
   const handleSearch = () => {
-    refetch();
+    if (inputId) refetch();
   };
-
-  if (isPending) return <div>Loading…</div>;
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h1 className="text-3xl font-bold mb-4">Track Your Parcel</h1>
 
-      {/* Search Box */}
+      {/* 🔍 Search Box */}
       <div className="flex gap-2 mb-6">
         <input
           type="text"
@@ -41,7 +39,13 @@ const TrackParcel = () => {
         </button>
       </div>
 
-      {/* Show Parcel Info */}
+      {/* ⏳ Loading */}
+      {isPending && <p>Loading...</p>}
+
+      {/* ❌ Error */}
+      {isError && <p className="text-red-500">Failed to load tracking data</p>}
+
+      {/* 📦 Parcel Info */}
       {data?.parcel && (
         <div className="mb-6 bg-gray-50 p-4 rounded-lg shadow">
           <p>
@@ -50,26 +54,38 @@ const TrackParcel = () => {
           <p>
             <strong>Parcel Name:</strong> {data.parcel.parcelName}
           </p>
-          <p>
-            <strong>Status:</strong> {data.parcel.status}
+          <p className="capitalize">
+            <strong>Status:</strong> {data.parcel.delivery_status}
           </p>
         </div>
       )}
 
-      {/* Tracking Timeline */}
-      <h2 className="text-xl font-semibold mb-3">Tracking Updates</h2>
+      {/* ❌ Empty State */}
+      {!data?.parcel && !isPending && !isError && (
+        <p className="text-gray-500">No tracking found</p>
+      )}
 
-      <div className="space-y-4">
-        {data?.updates?.map((u) => (
-          <div key={u._id} className="border-l-4 border-green-500 pl-4 py-2">
-            <p className="font-bold">{u.status}</p>
-            <p className="text-sm text-gray-600">{u.message}</p>
-            <p className="text-xs text-gray-400">
-              {new Date(u.updatedAt).toLocaleString()}
-            </p>
+      {/* 📍 Tracking Timeline */}
+      {data?.updates?.length > 0 && (
+        <>
+          <h2 className="text-xl font-semibold mb-3">Tracking Updates</h2>
+
+          <div className="space-y-4">
+            {data.updates.map((u) => (
+              <div
+                key={u._id}
+                className="border-l-4 border-green-500 pl-4 py-2"
+              >
+                <p className="font-bold capitalize">{u.status}</p>
+                <p className="text-sm text-gray-600">{u.message}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(u.updatedAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 };

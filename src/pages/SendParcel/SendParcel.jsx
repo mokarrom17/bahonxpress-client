@@ -5,19 +5,6 @@ import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
-// Utility function to generate tracking ID
-const generateTrackingId = () => {
-  const date = new Date();
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-  return `BX-${year}${month}${day}-${random}`;
-};
-
 const SendParcel = () => {
   const {
     register,
@@ -69,7 +56,6 @@ const SendParcel = () => {
         status: "pending",
         delivery_status: "pending",
         deliveryType: "standard",
-        trackingId: generateTrackingId(),
         createdAt: new Date().toISOString(),
       };
       console.log(parcelData);

@@ -52,7 +52,8 @@ const AssignRider = () => {
         riderEmail: selectedRider.userEmail,
       });
 
-      if (res.data.modifiedCount > 0) {
+      // ✅ FIXED CONDITION
+      if (res.data.success) {
         Swal.fire({
           icon: "success",
           title: "Rider Assigned Successfully",
@@ -215,7 +216,7 @@ const AssignRider = () => {
               </button>
 
               <button
-                className="btn btn-primary"
+                className="btn btn-primary text-black"
                 disabled={!selectedRider || !selectedParcel}
                 onClick={handleAssign}
               >
