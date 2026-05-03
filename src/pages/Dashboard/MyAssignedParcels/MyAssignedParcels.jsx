@@ -156,7 +156,7 @@ const MyAssignedParcels = () => {
                   <td className="flex items-center gap-2">
                     {p.delivery_status === "rider_assigned" && (
                       <button
-                        className="btn btn-xs btn-primary whitespace-nowrap min-w-24"
+                        className="btn btn-xs btn-primary whitespace-nowrap min-w-24 text-black"
                         disabled={updateStatusMutation.isPending}
                         onClick={() => handleStatusUpdate(p._id, "picked")}
                       >

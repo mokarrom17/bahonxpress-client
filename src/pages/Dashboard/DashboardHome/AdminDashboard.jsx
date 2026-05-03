@@ -1,38 +1,58 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   FaTruck,
   FaCheckCircle,
   FaClock,
   FaShippingFast,
+  FaUsers,
+  FaMotorcycle,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import StatusPieChart from "./AdminDashboardCharts/StatusPieChart";
+import DailyBarChart from "./AdminDashboardCharts/DailyBarChart";
 
 const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const axiosSecure = useAxiosSecure();
 
-  // 🔹 Fetch status counts
+  // ── Admin overall stats (revenue, users, riders)
+  const { data: stats = {} } = useQuery({
+    queryKey: ["stats-admin"],
+    queryFn: () => axiosSecure.get("/stats/admin").then((r) => r.data),
+  });
+
+  // ── Delivery status counts (for filter cards)
   const { data: statusCounts = [], isLoading: loadingStatus } = useQuery({
     queryKey: ["delivery-status-count"],
-    queryFn: async () => {
-      const res = await axiosSecure.get("/parcels/delivery/status-count");
-      return res.data;
-    },
+    queryFn: () =>
+      axiosSecure.get("/parcels/delivery/status-count").then((r) => r.data),
   });
 
-  // 🔹 Fetch parcels
+  // ── Parcels list
   const { data: parcels = [], isLoading: loadingParcels } = useQuery({
     queryKey: ["parcels", statusFilter],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/parcels?status=${statusFilter}`);
-      return res.data;
-    },
+    queryFn: () =>
+      axiosSecure.get(`/parcels?status=${statusFilter}`).then((r) => r.data),
   });
 
-  // 🔹 Status config (card)
+  // ── Client-side search filter (Tracking ID)
+  const filteredParcels = useMemo(() => {
+    if (!searchQuery.trim()) return parcels;
+    return parcels.filter((p) =>
+      p.trackingId?.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [parcels, searchQuery]);
+
+  // ── Reset showAll when filter/search changes
+  const visibleParcels = showAll
+    ? filteredParcels
+    : filteredParcels.slice(0, 5);
+
+  // ── Status card config
   const statusConfig = {
     pending: {
       icon: <FaClock />,
@@ -56,30 +76,56 @@ const AdminDashboard = () => {
     },
   };
 
-  // 🔹 Status badge (table)
+  // ── Status badge (table)
   const getStatusBadge = (status) => {
-    switch (status) {
-      case "pending":
-        return "badge-warning";
-      case "rider_assigned":
-        return "badge-secondary";
-      case "picked":
-        return "badge-info";
-      case "in_transit":
-        return "badge-primary text-black";
-      case "delivered":
-        return "badge-success";
-      default:
-        return "badge-ghost";
-    }
+    const map = {
+      pending: "badge-warning",
+      rider_assigned: "badge-secondary",
+      picked: "badge-info",
+      in_transit: "badge-primary text-black",
+      delivered: "badge-success",
+    };
+    return map[status] || "badge-ghost";
   };
-
-  // 🔹 Show only 5 initially
-  const visibleParcels = showAll ? parcels : parcels.slice(0, 5);
 
   return (
     <div className="p-6 space-y-8">
-      {/* 🔥 STATUS CARDS */}
+      {/* ── Top Stats Row (revenue / users / riders) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-base-100 rounded-2xl shadow p-5 flex items-center gap-4 border border-base-200">
+          <div className="p-3 rounded-xl bg-emerald-100 text-emerald-600 text-2xl">
+            <FaMoneyBillWave />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Total Revenue</p>
+            <p className="text-2xl font-bold">
+              ৳{stats?.revenue?.toLocaleString() ?? "—"}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-base-100 rounded-2xl shadow p-5 flex items-center gap-4 border border-base-200">
+          <div className="p-3 rounded-xl bg-purple-100 text-purple-600 text-2xl">
+            <FaUsers />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Total Users</p>
+            <p className="text-2xl font-bold">{stats?.totalUsers ?? "—"}</p>
+          </div>
+        </div>
+
+        <div className="bg-base-100 rounded-2xl shadow p-5 flex items-center gap-4 border border-base-200">
+          <div className="p-3 rounded-xl bg-orange-100 text-orange-600 text-2xl">
+            <FaMotorcycle />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Active Riders</p>
+            <p className="text-2xl font-bold">{stats?.totalRiders ?? "—"}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Delivery Status Filter Cards ── */}
       <div>
         <h2 className="text-xl font-bold mb-4">Delivery Overview</h2>
 
@@ -91,28 +137,30 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {statusCounts.map((item, index) => {
-              const config = statusConfig[item.status] || {
-                icon: <FaTruck />,
-                color: "bg-gray-100 text-gray-600",
-                label: item.status,
-              };
+            {/* statusConfig এর keys দিয়ে fixed 4 card */}
+            {Object.entries(statusConfig).map(([status, config]) => {
+              // API থেকে count খোঁজো, না পেলে 0
+              const count =
+                statusCounts.find((s) => s.status === status)?.count || 0;
 
               return (
                 <div
-                  key={index}
-                  onClick={() => setStatusFilter(item.status)}
+                  key={status}
+                  onClick={() => {
+                    setStatusFilter(status);
+                    setShowAll(false);
+                    setSearchQuery("");
+                  }}
                   className={`card bg-base-100 shadow-md hover:shadow-xl cursor-pointer transition hover:scale-105 ${
-                    statusFilter === item.status ? "ring-2 ring-primary" : ""
+                    statusFilter === status ? "ring-2 ring-primary" : ""
                   }`}
                 >
                   <div className="card-body flex flex-row items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500">{config.label}</p>
-                      <h2 className="text-2xl font-bold">{item.count}</h2>
+                      <h2 className="text-2xl font-bold">{count}</h2>
                       <p className="text-xs text-gray-400">Click to filter</p>
                     </div>
-
                     <div className={`p-3 rounded-full text-xl ${config.color}`}>
                       {config.icon}
                     </div>
@@ -123,27 +171,43 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
-      {/* 📊 CHART SECTION */}
+
+      {/* ── Charts ── */}
       <div className="grid md:grid-cols-2 gap-6">
         <StatusPieChart />
+        <DailyBarChart />
       </div>
 
-      {/* 📦 PARCEL TABLE */}
+      {/* ── Parcel Table ── */}
       <div>
-        <h2 className="text-xl font-bold mb-4">Parcels ({statusFilter})</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Parcels{" "}
+          <span className="text-base font-normal text-gray-400">
+            ({statusFilter}) — {filteredParcels.length} parcels
+          </span>
+        </h2>
 
-        {/* 🔍 Search + Filter */}
-        <div className="flex justify-between items-center mb-4">
+        {/* Search + Filter */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <input
             type="text"
-            placeholder="Search by Tracking ID"
-            className="input input-bordered w-64"
+            placeholder="🔍 Search by Tracking ID..."
+            className="input input-bordered w-full sm:w-72"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowAll(false);
+            }}
           />
 
           <select
             className="select select-bordered"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setShowAll(false);
+              setSearchQuery("");
+            }}
           >
             <option value="all">All</option>
             <option value="pending">Pending</option>
@@ -154,10 +218,14 @@ const AdminDashboard = () => {
         </div>
 
         {loadingParcels ? (
-          <div className="loading loading-spinner"></div>
-        ) : parcels.length === 0 ? (
+          <div className="flex justify-center py-10">
+            <span className="loading loading-spinner loading-lg" />
+          </div>
+        ) : filteredParcels.length === 0 ? (
           <div className="text-center py-10 text-gray-400">
-            🚫 No parcels found
+            {searchQuery
+              ? `"${searchQuery}" — No parcels found`
+              : "🚫 No parcels found"}
           </div>
         ) : (
           <>
@@ -173,55 +241,49 @@ const AdminDashboard = () => {
                     <th>Rider</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {visibleParcels.map((p) => (
-                    <tr key={p._id}>
-                      <td className="font-bold text-black">{p.trackingId}</td>
-
+                    <tr key={p._id} className="hover">
+                      <td className="font-bold font-mono text-sm">
+                        {p.trackingId}
+                      </td>
                       <td>
                         {p.senderDistrict} → {p.receiverDistrict}
                       </td>
-
                       <td>
                         <span
-                          className={`badge ${getStatusBadge(
-                            p.delivery_status,
-                          )}`}
+                          className={`badge ${getStatusBadge(p.delivery_status)}`}
                         >
                           {p.delivery_status}
                         </span>
                       </td>
-
                       <td>
                         <span
-                          className={`badge ${
-                            p.paymentStatus === "paid"
-                              ? "badge-success"
-                              : "badge-warning"
-                          }`}
+                          className={`badge ${p.paymentStatus === "paid" ? "badge-success" : "badge-warning"}`}
                         >
                           {p.paymentStatus}
                         </span>
                       </td>
-
-                      <td>৳ {p.cost?.total}</td>
-
-                      <td>{p.riderEmail || "Not Assigned"}</td>
+                      <td>৳ {p.cost?.total ?? "—"}</td>
+                      <td className="text-xs text-gray-500">
+                        {p.riderEmail || "Not Assigned"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* 🔥 SEE MORE BUTTON */}
-            {parcels.length > 5 && (
+            {/* See More / Less */}
+            {filteredParcels.length > 5 && (
               <div className="text-center mt-4">
                 <button
                   onClick={() => setShowAll(!showAll)}
                   className="btn btn-sm btn-outline text-black btn-primary"
                 >
-                  {showAll ? "Show Less" : "See More"}
+                  {showAll
+                    ? "Show Less ▲"
+                    : `See More (${filteredParcels.length - 5} remaining) ▼`}
                 </button>
               </div>
             )}
