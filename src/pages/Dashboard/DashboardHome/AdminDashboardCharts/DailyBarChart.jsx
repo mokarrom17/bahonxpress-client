@@ -82,6 +82,7 @@ const DailyBarChart = () => {
             {/* bar */}
             <Bar
               dataKey="total"
+              fill="#3b82f6"
               radius={[6, 6, 0, 0]} // rounded top
             />
           </BarChart>

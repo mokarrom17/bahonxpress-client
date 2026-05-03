@@ -13,6 +13,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import StatusPieChart from "./AdminDashboardCharts/StatusPieChart";
 import DailyBarChart from "./AdminDashboardCharts/DailyBarChart";
 import RevenueBarChart from "./AdminDashboardCharts/RevenueBarChart";
+import DeliveryRevenueChart from "./AdminDashboardCharts/Deliveryrevenuechart";
 
 const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
@@ -180,6 +181,8 @@ const AdminDashboard = () => {
       </div>
       {/* Revenue Chart — full width */}
       <RevenueBarChart />
+      {/* Comparison chart — full width */}
+      <DeliveryRevenueChart />
 
       {/* ── Parcel Table ── */}
       <div>
