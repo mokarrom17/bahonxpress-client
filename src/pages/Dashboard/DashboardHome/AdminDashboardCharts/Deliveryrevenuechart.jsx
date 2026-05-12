@@ -73,16 +73,7 @@ const DeliveryRevenueChart = () => {
     },
   });
 
-  /* --------------------------------------------------
-     Summary Calculations
-  -------------------------------------------------- */
-  const totalDeliveries = data.reduce(
-    (sum, item) => sum + (item.deliveries || 0),
-    0,
-  );
-
-  const totalRevenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
-
+  // Highest revenue month কে highlight করার জন্য
   const highestMonth =
     data.length > 0
       ? data.reduce((max, item) => (item.revenue > max.revenue ? item : max))
@@ -127,31 +118,6 @@ const DeliveryRevenueChart = () => {
           </h3>
 
           <p className="text-sm text-gray-400 mt-1">Monthly comparison</p>
-        </div>
-
-        {/* Right Stats */}
-        <div className="flex flex-wrap gap-3">
-          {/* Deliveries */}
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 min-w-32.5">
-            <p className="text-xs text-blue-500 font-medium">
-              Total Deliveries
-            </p>
-
-            <h4 className="text-2xl font-bold text-blue-700 mt-1">
-              {totalDeliveries}
-            </h4>
-          </div>
-
-          {/* Revenue */}
-          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 min-w-37.5">
-            <p className="text-xs text-emerald-500 font-medium">
-              Total Revenue
-            </p>
-
-            <h4 className="text-2xl font-bold text-emerald-700 mt-1">
-              ৳{totalRevenue.toLocaleString()}
-            </h4>
-          </div>
         </div>
       </div>
 
