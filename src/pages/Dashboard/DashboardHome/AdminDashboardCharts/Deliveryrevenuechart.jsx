@@ -132,7 +132,7 @@ const DeliveryRevenueChart = () => {
         {/* Right Stats */}
         <div className="flex flex-wrap gap-3">
           {/* Deliveries */}
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 min-w-[130px]">
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 min-w-32.5">
             <p className="text-xs text-blue-500 font-medium">
               Total Deliveries
             </p>
@@ -143,7 +143,7 @@ const DeliveryRevenueChart = () => {
           </div>
 
           {/* Revenue */}
-          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 min-w-[150px]">
+          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 min-w-37.5">
             <p className="text-xs text-emerald-500 font-medium">
               Total Revenue
             </p>
@@ -174,7 +174,7 @@ const DeliveryRevenueChart = () => {
       {/* --------------------------------------------------
            Chart
       -------------------------------------------------- */}
-      <div className="w-full h-[380px]">
+      <div className="w-full h-95">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={data}

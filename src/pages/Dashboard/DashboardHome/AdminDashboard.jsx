@@ -93,7 +93,7 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 space-y-8">
       {/* ── Top Stats Row (revenue / users / riders) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="bg-base-100 rounded-2xl shadow p-5 flex items-center gap-4 border border-base-200">
           <div className="p-3 rounded-xl bg-emerald-100 text-emerald-600 text-2xl">
             <FaMoneyBillWave />
@@ -174,15 +174,33 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      {/* ── Charts ── */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <StatusPieChart />
-        <DailyBarChart />
+      {/* 
+      =========================================
+      MAIN ANALYTICS
+      ========================================= */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* BIG MAIN CHART */}
+        <div className="xl:col-span-8">
+          <DeliveryRevenueChart />
+        </div>
+
+        {/* PIE CHART */}
+        <div className="xl:col-span-4">
+          <StatusPieChart />
+        </div>
       </div>
-      {/* Revenue Chart — full width */}
-      <RevenueBarChart />
-      {/* Comparison chart — full width */}
-      <DeliveryRevenueChart />
+
+      {/* 
+      =========================================
+        SECONDARY ANALYTICS
+      ========================================= */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        {/* DAILY TREND */}
+        <DailyBarChart />
+
+        {/* MONTHLY REVENUE */}
+        <RevenueBarChart />
+      </div>
 
       {/* ── Parcel Table ── */}
       <div>
