@@ -47,7 +47,7 @@ const RevenueBarChart = () => {
     return (
       <div className="bg-base-100 rounded-xl p-6 shadow text-center text-gray-400 h-80 flex flex-col items-center justify-center gap-2">
         <p className="text-3xl">📊</p>
-        <p>কোনো revenue data নেই</p>
+        <p>No revenue data available</p>
       </div>
     );
   }
