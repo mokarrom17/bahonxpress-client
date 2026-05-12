@@ -7,8 +7,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
+
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../../hooks/useAxiosSecure";
 
@@ -19,7 +19,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="bg-base-100 border border-base-200 rounded-2xl shadow-xl px-4 py-3 text-sm min-w-40">
+    <div className="bg-base-100 border border-base-200 rounded-2xl shadow-xl px-4 py-3 text-sm min-w-44">
       <p className="font-semibold text-gray-700 mb-3">{label}</p>
 
       {payload.map((entry) => {
@@ -30,12 +30,13 @@ const CustomTooltip = ({ active, payload, label }) => {
         return (
           <div
             key={entry.dataKey}
-            className="flex items-center justify-between gap-4 mb-2"
+            className="flex items-center justify-between gap-5 mb-2"
           >
+            {/* Left */}
             <div className="flex items-center gap-2">
               <span
                 className={`inline-block ${
-                  isRevenue ? "w-4 h-1.5 rounded-full" : "w-3 h-3 rounded"
+                  isRevenue ? "w-5 h-1.5 rounded-full" : "w-3 h-3 rounded"
                 }`}
                 style={{ backgroundColor: color }}
               />
@@ -45,31 +46,13 @@ const CustomTooltip = ({ active, payload, label }) => {
               </span>
             </div>
 
+            {/* Right */}
             <span className="font-bold" style={{ color }}>
               {isRevenue ? `৳${entry.value.toLocaleString()}` : entry.value}
             </span>
           </div>
         );
       })}
-    </div>
-  );
-};
-
-/* --------------------------------------------------
-   Custom Legend
--------------------------------------------------- */
-const CustomLegend = () => {
-  return (
-    <div className="flex items-center justify-center gap-6 text-sm mt-2">
-      <div className="flex items-center gap-2">
-        <span className="w-4 h-4 rounded bg-blue-400 inline-block" />
-        <span className="text-gray-500">Deliveries</span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="w-5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-        <span className="text-gray-500">Revenue (৳)</span>
-      </div>
     </div>
   );
 };
@@ -85,6 +68,7 @@ const DeliveryRevenueChart = () => {
     retry: false,
     queryFn: async () => {
       const res = await axiosSecure.get("/stats/delivery-revenue");
+
       return res.data;
     },
   });
@@ -99,7 +83,6 @@ const DeliveryRevenueChart = () => {
 
   const totalRevenue = data.reduce((sum, item) => sum + (item.revenue || 0), 0);
 
-  // Highest revenue month
   const highestMonth =
     data.length > 0
       ? data.reduce((max, item) => (item.revenue > max.revenue ? item : max))
@@ -112,6 +95,7 @@ const DeliveryRevenueChart = () => {
     return (
       <div className="bg-base-100 rounded-2xl p-6 shadow animate-pulse">
         <div className="h-6 w-52 bg-base-200 rounded mb-6" />
+
         <div className="h-72 bg-base-200 rounded-2xl" />
       </div>
     );
@@ -123,14 +107,15 @@ const DeliveryRevenueChart = () => {
   if (!data.length) {
     return (
       <div className="bg-base-100 rounded-2xl p-6 shadow h-80 flex flex-col items-center justify-center text-gray-400">
-        <p className="text-4xl mb-3">📊</p>
+        <p className="text-5xl mb-3">📊</p>
+
         <p className="font-medium">No analytics data available</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-base-100 rounded-2xl p-6 shadow hover:shadow-xl transition-all duration-300">
+    <div className="bg-base-100 rounded-2xl p-6 shadow hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* --------------------------------------------------
            Header
       -------------------------------------------------- */}
@@ -141,15 +126,13 @@ const DeliveryRevenueChart = () => {
             Delivery vs Revenue
           </h3>
 
-          <p className="text-sm text-gray-400 mt-1">
-            Monthly delivery and revenue comparison
-          </p>
+          <p className="text-sm text-gray-400 mt-1">Monthly comparison</p>
         </div>
 
         {/* Right Stats */}
         <div className="flex flex-wrap gap-3">
           {/* Deliveries */}
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 min-w-32.5">
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-3 min-w-[130px]">
             <p className="text-xs text-blue-500 font-medium">
               Total Deliveries
             </p>
@@ -160,7 +143,7 @@ const DeliveryRevenueChart = () => {
           </div>
 
           {/* Revenue */}
-          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 min-w-37.5">
+          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 min-w-[150px]">
             <p className="text-xs text-emerald-500 font-medium">
               Total Revenue
             </p>
@@ -191,7 +174,7 @@ const DeliveryRevenueChart = () => {
       {/* --------------------------------------------------
            Chart
       -------------------------------------------------- */}
-      <div className="w-full h-85">
+      <div className="w-full h-[380px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={data}
@@ -199,7 +182,7 @@ const DeliveryRevenueChart = () => {
               top: 10,
               right: 10,
               left: 0,
-              bottom: 0,
+              bottom: 20,
             }}
           >
             {/* Grid */}
@@ -234,7 +217,7 @@ const DeliveryRevenueChart = () => {
               tick={{ fontSize: 11 }}
               tickLine={false}
               axisLine={false}
-              width={55}
+              width={60}
               tickFormatter={(v) =>
                 v >= 1000 ? `৳${(v / 1000).toFixed(1)}k` : `৳${v}`
               }
@@ -275,6 +258,25 @@ const DeliveryRevenueChart = () => {
             />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* --------------------------------------------------
+           Manual Legend
+      -------------------------------------------------- */}
+      <div className="flex items-center justify-center gap-6 pt-2 text-sm">
+        {/* Deliveries */}
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded bg-blue-400 inline-block" />
+
+          <span className="text-gray-500 font-medium">Deliveries</span>
+        </div>
+
+        {/* Revenue */}
+        <div className="flex items-center gap-2">
+          <span className="w-5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+
+          <span className="text-gray-500 font-medium">Revenue (৳)</span>
+        </div>
       </div>
     </div>
   );
