@@ -1,13 +1,25 @@
 import { useEffect, useState } from "react";
+
 import { useForm } from "react-hook-form";
 
+import { useQuery } from "@tanstack/react-query";
+
 import useAuth from "../../../hooks/useAuth";
+
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 /* =========================================
-    Reusable Input
+    Reusable Input Component
 ========================================= */
-const InputField = ({ label, icon, error, register, name, ...props }) => (
+const InputField = ({
+  label,
+  icon,
+  error,
+  register,
+  name,
+  validation,
+  ...props
+}) => (
   <div className="group">
     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
       {label}
@@ -19,7 +31,7 @@ const InputField = ({ label, icon, error, register, name, ...props }) => (
       </span>
 
       <input
-        {...register(name)}
+        {...register(name, validation)}
         {...props}
         className={`w-full bg-gray-50 border rounded-2xl pl-11 pr-4 py-3.5 text-sm text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-4 transition-all duration-200
           
@@ -36,7 +48,7 @@ const InputField = ({ label, icon, error, register, name, ...props }) => (
 );
 
 /* =========================================
-    Component
+    Main Component
 ========================================= */
 const UpdateProfile = () => {
   const { user } = useAuth();
@@ -63,36 +75,53 @@ const UpdateProfile = () => {
   } = useForm();
 
   /* =========================================
-      Load User
+      TanStack Query
   ========================================= */
-  useEffect(() => {
-    axiosSecure.get("/users/me").then((res) => {
-      reset({
-        name: res.data?.name || user?.displayName || "",
+  const {
+    data: userData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["my-profile"],
 
-        phone: res.data?.phone || "",
+    queryFn: async () => {
+      const res = await axiosSecure.get("/users/me");
 
-        alternatePhone: res.data?.alternatePhone || "",
-
-        gender: res.data?.gender || "",
-
-        dateOfBirth: res.data?.dateOfBirth || "",
-
-        nid: res.data?.nid || "",
-
-        emergencyContact: res.data?.emergencyContact || "",
-
-        district: res.data?.district || "",
-
-        address: res.data?.address || "",
-
-        photoURL: res.data?.photoURL || user?.photoURL || "",
-      });
-    });
-  }, [axiosSecure, reset, user?.displayName, user?.photoURL]);
+      return res.data;
+    },
+  });
 
   /* =========================================
-      Submit
+      Reset Form Data
+  ========================================= */
+  useEffect(() => {
+    if (userData) {
+      reset({
+        name: userData?.name || "",
+
+        phone: userData?.phone || "",
+
+        alternatePhone: userData?.alternatePhone || "",
+
+        gender: userData?.gender || "",
+
+        dateOfBirth: userData?.dateOfBirth || "",
+
+        nid: userData?.nid || "",
+
+        emergencyContact: userData?.emergencyContact || "",
+
+        district: userData?.district || "",
+
+        address: userData?.address || "",
+
+        photoURL: userData?.photoURL || "",
+      });
+    }
+  }, [userData, reset]);
+
+  /* =========================================
+      Submit Handler
   ========================================= */
   const onSubmit = async (data) => {
     setLoading(true);
@@ -104,6 +133,8 @@ const UpdateProfile = () => {
     try {
       await axiosSecure.patch("/users/profile", data);
 
+      await refetch();
+
       setSuccess(true);
     } catch {
       setError("Something went wrong. Please try again.");
@@ -113,7 +144,18 @@ const UpdateProfile = () => {
   };
 
   /* =========================================
-      Avatar
+      Loading State
+  ========================================= */
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
+  }
+
+  /* =========================================
+      Avatar Preview
   ========================================= */
   const photoURL = watch("photoURL");
 
@@ -124,65 +166,82 @@ const UpdateProfile = () => {
       ? photoURL
       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
           name || "User",
-        )}&background=3b82f6&color=fff&size=128`;
+        )}&background=2563eb&color=fff&size=128`;
 
   return (
-    <div className="w-full mx-auto pl-3 px-4">
-      {/* 
-      =========================================
-        Banner
+    <div className="w-full mx-auto px-4 pl-3">
+      {/* =========================================
+          Banner
       ========================================= */}
-      <div className="relative rounded-4xl overflow-hidden h-44 bg-linear-to-br from-blue-600 via-indigo-600 to-violet-700">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 rounded-full border border-white" />
-          <div className="absolute bottom-5 right-10 w-24 h-24 rounded-full border border-white" />
+      <div className="relative h-80 rounded-3xl overflow-hidden bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700">
+        {/* Pattern */}
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
+              radial-gradient(circle at 80% 20%, white 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+          }}
+        />
+
+        {/* BX Background */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <h1 className="text-white/4 text-[220px] md:text-[280px] font-black tracking-tight leading-none">
+            BX
+          </h1>
         </div>
 
-        <div className="absolute bottom-7 left-8">
-          <p className="text-white/70 text-xs font-semibold uppercase tracking-[0.3em]">
+        {/* Text */}
+        <div className="absolute bottom-10 left-7">
+          <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
             Account Settings
           </p>
 
-          <h1 className="text-white text-4xl font-bold mt-2">Update Profile</h1>
+          <h1 className="text-white text-5xl font-black tracking-tight mt-1">
+            Update Profile
+          </h1>
+        </div>
+
+        {/* Avatar */}
+        <div className="absolute top-1/2 -translate-y-1/2 right-8">
+          <div className="relative">
+            <img
+              src={avatarSrc}
+              alt="avatar"
+              onError={() => setImgError(true)}
+              className="w-28 h-28 rounded-3xl object-cover border border-white/40 shadow-2xl backdrop-blur-md bg-white/10 p-1"
+            />
+
+            <span className="absolute bottom-2 right-2 w-4 h-4 rounded-full bg-emerald-400 border-2 border-white" />
+          </div>
         </div>
       </div>
 
       {/* =========================================
           Main Card
       ========================================= */}
-      <div className="bg-white rounded-4xl shadow-sm border border-gray-100 px-8 pt-20 pb-8 relative -mt-10">
-        {/* Avatar */}
-        <div className="absolute -top-14 left-8">
-          <div className="relative">
-            <img
-              src={avatarSrc}
-              alt="avatar"
-              onError={() => setImgError(true)}
-              className="w-28 h-28 rounded-3xl object-cover border-4 border-white shadow-xl"
-            />
-
-            <span className="absolute bottom-2 right-2 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
-          </div>
-        </div>
-
+      <div className="relative mt-2 bg-white rounded-4xl border border-gray-100 shadow-sm px-8 pt-20 pb-8">
         {/* User Info */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-gray-800">
-            {name || user?.displayName || "Your Name"}
+            {name || "Your Name"}
           </h2>
 
           <p className="text-gray-400 mt-1">{user?.email}</p>
         </div>
 
-        {/* Alerts */}
+        {/* Success */}
         {success && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-medium">
+          <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
             ✅ Profile updated successfully
           </div>
         )}
 
+        {/* Error */}
         {error && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+          <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 px-5 py-4 text-sm font-medium text-red-600">
             ❌ {error}
           </div>
         )}
@@ -200,6 +259,7 @@ const UpdateProfile = () => {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
               <InputField
                 label="Full Name"
                 icon="👤"
@@ -207,8 +267,12 @@ const UpdateProfile = () => {
                 register={register}
                 error={errors.name}
                 placeholder="Your full name"
+                validation={{
+                  required: "Name is required",
+                }}
               />
 
+              {/* Email */}
               <InputField
                 label="Email"
                 icon="📧"
@@ -218,6 +282,7 @@ const UpdateProfile = () => {
                 disabled
               />
 
+              {/* Phone */}
               <InputField
                 label="Phone Number"
                 icon="📞"
@@ -225,8 +290,18 @@ const UpdateProfile = () => {
                 register={register}
                 error={errors.phone}
                 placeholder="01XXXXXXXXX"
+                validation={{
+                  required: "Phone is required",
+
+                  minLength: {
+                    value: 11,
+
+                    message: "Phone must be 11 digits",
+                  },
+                }}
               />
 
+              {/* Alternate Phone */}
               <InputField
                 label="Alternate Phone"
                 icon="☎️"
@@ -255,6 +330,7 @@ const UpdateProfile = () => {
                 </select>
               </div>
 
+              {/* Date of Birth */}
               <InputField
                 label="Date of Birth"
                 icon="🎂"
@@ -274,42 +350,71 @@ const UpdateProfile = () => {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* NID */}
               <InputField
                 label="National ID"
                 icon="🪪"
                 name="nid"
                 register={register}
+                error={errors.nid}
                 placeholder="NID number"
+                validation={{
+                  minLength: {
+                    value: 10,
+
+                    message: "NID too short",
+                  },
+                }}
               />
 
+              {/* Emergency Contact */}
               <InputField
                 label="Emergency Contact"
                 icon="🚨"
                 name="emergencyContact"
                 register={register}
-                placeholder="Emergency number"
+                placeholder="Emergency phone number"
               />
 
-              <InputField
-                label="District"
-                icon="📍"
-                name="district"
-                register={register}
-                placeholder="Your district"
-              />
+              {/* District */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                  District
+                </label>
 
+                <select
+                  {...register("district")}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 text-sm text-gray-700 focus:outline-none focus:border-blue-300 focus:ring-4 focus:ring-blue-50"
+                >
+                  <option value="">Select District</option>
+
+                  <option value="Dhaka">Dhaka</option>
+
+                  <option value="Chattogram">Chattogram</option>
+
+                  <option value="Sylhet">Sylhet</option>
+
+                  <option value="Rajshahi">Rajshahi</option>
+
+                  <option value="Khulna">Khulna</option>
+
+                  <option value="Barishal">Barishal</option>
+                </select>
+              </div>
+
+              {/* Photo URL */}
               <InputField
                 label="Photo URL"
                 icon="🖼️"
                 name="photoURL"
                 register={register}
-                placeholder="https://..."
+                placeholder="https://example.com/photo.jpg"
               />
             </div>
           </div>
 
           {/* =========================================
-              Address
+              Address Information
           ========================================= */}
           <div>
             <h3 className="text-xl font-bold text-gray-800 mb-6">
@@ -339,33 +444,48 @@ const UpdateProfile = () => {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Role */}
+              {/* Role Badge */}
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
                   Role Badge
                 </p>
 
-                <span className="inline-flex items-center px-5 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold">
-                  USER
+                <span
+                  className={`inline-flex items-center px-5 py-2 rounded-full text-sm font-semibold
+                  
+                    ${
+                      userData?.role === "admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : userData?.role === "rider"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-blue-100 text-blue-700"
+                    }
+                  `}
+                >
+                  {userData?.role?.toUpperCase()}
                 </span>
               </div>
 
-              {/* Joined */}
+              {/* Created */}
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
                   Account Created
                 </p>
 
                 <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm text-gray-700">
-                  Apr 2026
+                  {userData?.createdAt
+                    ? new Date(userData.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+
+                        year: "numeric",
+                      })
+                    : "N/A"}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* =========================================
-              Submit
-          ========================================= */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
