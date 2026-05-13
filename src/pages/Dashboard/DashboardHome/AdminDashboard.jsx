@@ -15,6 +15,7 @@ import DailyBarChart from "./AdminDashboardCharts/DailyBarChart";
 import RevenueBarChart from "./AdminDashboardCharts/RevenueBarChart";
 import DeliveryRevenueChart from "./AdminDashboardCharts/Deliveryrevenuechart";
 import RiderPerformanceChart from "./AdminDashboardCharts/RiderPerformanceChart";
+import BusinessInsights from "./AdminDashboardCharts/BusinessInsights";
 
 const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
@@ -216,8 +217,10 @@ const AdminDashboard = () => {
       REVENUE OVERVIEW
       ========================================= */}
 
-      <div className="mt-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
         <RevenueBarChart />
+
+        <BusinessInsights />
       </div>
 
       {/* ── Parcel Table ── */}
