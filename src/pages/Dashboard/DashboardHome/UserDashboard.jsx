@@ -2,6 +2,7 @@ import React from "react";
 import UserHeader from "./UserDashboardCharts/UserHeader";
 import UserStatsCards from "./UserDashboardCharts/UserStatsCards";
 import UserRecentParcels from "./UserDashboardCharts/UserRecentParcels";
+import QuickActions from "./UserDashboardCharts/QuickActions";
 
 const UserDashboard = () => {
   return (
@@ -9,6 +10,7 @@ const UserDashboard = () => {
       <UserHeader />
       <UserStatsCards />
       <UserRecentParcels />
+      <QuickActions />
     </div>
   );
 };
