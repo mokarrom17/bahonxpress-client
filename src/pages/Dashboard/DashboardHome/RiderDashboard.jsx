@@ -3,6 +3,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import RiderHeader from "./RiderDashboardCharts/RiderHeader";
 import RiderStatsCards from "./RiderDashboardCharts/RiderStatsCards";
 import RiderRecentDeliveries from "./RiderDashboardCharts/RiderRecentDeliveries";
+import RiderDeliveryChart from "./RiderDashboardCharts/RiderDeliveryChart";
 
 const RiderDashboard = () => {
   const axiosSecure = useAxiosSecure();
@@ -24,6 +25,9 @@ const RiderDashboard = () => {
       <RiderHeader riderData={dashboardData?.rider} />
 
       <RiderStatsCards stats={dashboardData?.stats} />
+
+      <RiderDeliveryChart />
+
       {/* Recent Deliveries */}
       <RiderRecentDeliveries />
     </div>

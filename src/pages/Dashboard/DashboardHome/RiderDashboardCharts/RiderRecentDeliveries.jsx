@@ -73,7 +73,7 @@ const RiderRecentDeliveries = () => {
                 <td>{delivery?.receiverName}</td>
 
                 {/* Location */}
-                <td className="max-w-[220px] truncate">
+                <td className="max-w-55 truncate">
                   {delivery?.receiverAddress}
                 </td>
 
