@@ -1,14 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import RiderHeader from "./RiderDashboardCharts/RiderHeader";
+import RiderStatsCards from "./RiderDashboardCharts/RiderStatsCards";
 
 const RiderDashboard = () => {
   const axiosSecure = useAxiosSecure();
 
-  const { data: riderData, isLoading } = useQuery({
-    queryKey: ["rider-header"],
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ["rider-dashboard-overview"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/rider/header-data");
+      const res = await axiosSecure.get("/rider/dashboard-overview");
       return res.data;
     },
   });
@@ -19,7 +20,9 @@ const RiderDashboard = () => {
 
   return (
     <div className="p-4 md:p-6">
-      <RiderHeader riderData={riderData} />
+      <RiderHeader riderData={dashboardData?.rider} />
+
+      <RiderStatsCards stats={dashboardData?.stats} />
     </div>
   );
 };
