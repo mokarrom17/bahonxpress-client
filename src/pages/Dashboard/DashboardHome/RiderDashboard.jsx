@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import RiderHeader from "./RiderDashboardCharts/RiderHeader";
 import RiderStatsCards from "./RiderDashboardCharts/RiderStatsCards";
+import RiderRecentDeliveries from "./RiderDashboardCharts/RiderRecentDeliveries";
 
 const RiderDashboard = () => {
   const axiosSecure = useAxiosSecure();
@@ -23,6 +24,8 @@ const RiderDashboard = () => {
       <RiderHeader riderData={dashboardData?.rider} />
 
       <RiderStatsCards stats={dashboardData?.stats} />
+      {/* Recent Deliveries */}
+      <RiderRecentDeliveries />
     </div>
   );
 };
