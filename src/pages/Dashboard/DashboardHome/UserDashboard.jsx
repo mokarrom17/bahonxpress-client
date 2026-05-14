@@ -3,6 +3,7 @@ import UserHeader from "./UserDashboardCharts/UserHeader";
 import UserStatsCards from "./UserDashboardCharts/UserStatsCards";
 import UserRecentParcels from "./UserDashboardCharts/UserRecentParcels";
 import QuickActions from "./UserDashboardCharts/QuickActions";
+import ParcelTrackingProgress from "./UserDashboardCharts/ParcelTrackingProgress";
 
 const UserDashboard = () => {
   return (
@@ -11,6 +12,7 @@ const UserDashboard = () => {
       <UserStatsCards />
       <UserRecentParcels />
       <QuickActions />
+      <ParcelTrackingProgress />
     </div>
   );
 };
