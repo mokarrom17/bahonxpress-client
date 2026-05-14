@@ -4,6 +4,7 @@ import RiderHeader from "./RiderDashboardCharts/RiderHeader";
 import RiderStatsCards from "./RiderDashboardCharts/RiderStatsCards";
 import RiderRecentDeliveries from "./RiderDashboardCharts/RiderRecentDeliveries";
 import RiderDeliveryChart from "./RiderDashboardCharts/RiderDeliveryChart";
+import RiderEarningsChart from "./RiderDashboardCharts/RiderEarningsChart";
 
 const RiderDashboard = () => {
   const axiosSecure = useAxiosSecure();
@@ -26,7 +27,11 @@ const RiderDashboard = () => {
 
       <RiderStatsCards stats={dashboardData?.stats} />
 
-      <RiderDeliveryChart />
+      <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <RiderDeliveryChart />
+
+        <RiderEarningsChart />
+      </div>
 
       {/* Recent Deliveries */}
       <RiderRecentDeliveries />
