@@ -311,7 +311,7 @@ const MyParcels = () => {
               -------------------------------------------------- */}
               <AnimatePresence>
                 {openId === p._id && (
-                  <MotionDiv.div
+                  <MotionDiv
                     id={`tracking-${p._id}`}
                     initial={{
                       opacity: 0,
@@ -356,7 +356,7 @@ const MyParcels = () => {
                       {/* Timeline */}
                       <TrackingTimeline trackingId={p.trackingId} />
                     </div>
-                  </MotionDiv.div>
+                  </MotionDiv>
                 )}
               </AnimatePresence>
             </div>
