@@ -50,6 +50,8 @@ const InputField = ({
 /* =========================================
     Main Component
 ========================================= */
+const IMGBB_KEY = import.meta.env.VITE_IMAGE_UPLOAD_KEY?.trim();
+
 const UpdateProfile = () => {
   const { user } = useAuth();
 
@@ -62,6 +64,12 @@ const UpdateProfile = () => {
   const [error, setError] = useState("");
 
   const [imgError, setImgError] = useState(false);
+
+  // Photo upload states
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoUploadError, setPhotoUploadError] = useState("");
 
   /* =========================================
       React Hook Form
@@ -120,6 +128,33 @@ const UpdateProfile = () => {
     }
   }, [userData, reset]);
 
+  // Photo file select handler
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoUploadError("File size must be under 5MB");
+      return;
+    }
+    setPhotoUploadError("");
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setImgError(false);
+  };
+
+  // Upload to imgbb
+  const uploadToImgbb = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error("Upload failed");
+    return data.data.url;
+  };
+
   /* =========================================
       Submit Handler
   ========================================= */
@@ -131,6 +166,21 @@ const UpdateProfile = () => {
     setError("");
 
     try {
+      // If new photo selected → upload to imgbb first
+      if (photoFile) {
+        setPhotoUploading(true);
+        try {
+          const uploadedUrl = await uploadToImgbb(photoFile);
+          data.photoURL = uploadedUrl;
+        } catch {
+          setError("Photo upload failed. Please try again.");
+          setLoading(false);
+          setPhotoUploading(false);
+          return;
+        }
+        setPhotoUploading(false);
+      }
+
       await axiosSecure.patch("/users/profile", data);
 
       await refetch();
@@ -161,8 +211,9 @@ const UpdateProfile = () => {
 
   const name = watch("name");
 
-  const avatarSrc =
-    !imgError && photoURL
+  const avatarSrc = photoPreview
+    ? photoPreview
+    : !imgError && photoURL
       ? photoURL
       : `https://ui-avatars.com/api/?name=${encodeURIComponent(
           name || "User",
@@ -402,14 +453,63 @@ const UpdateProfile = () => {
                 </select>
               </div>
 
-              {/* Photo URL */}
-              <InputField
-                label="Photo URL"
-                icon="🖼️"
-                name="photoURL"
-                register={register}
-                placeholder="https://example.com/photo.jpg"
-              />
+              {/* Photo Upload */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                  Profile Photo
+                </label>
+
+                <label className="flex flex-col items-center justify-center w-full h-16 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all duration-200">
+                  {photoPreview ? (
+                    <div className="flex items-center gap-3 px-4">
+                      <img
+                        src={photoPreview}
+                        alt="preview"
+                        className="w-14 h-14 rounded-xl object-cover border border-gray-200"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 truncate max-w-35">
+                          {photoFile?.name}
+                        </p>
+                        <p className="text-xs text-blue-500 mt-1">
+                          Click to change
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center flex gap-5 items-center px-4">
+                      <p className="text-xl">🖼️</p>
+                      <div>
+                        <p className="text-sm text-gray-400">
+                          Click to upload photo
+                        </p>
+                        <p className="text-xs text-gray-300">
+                          JPG, PNG, WEBP — max 5MB
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </label>
+
+                {photoUploadError && (
+                  <p className="text-xs text-red-500 mt-2">
+                    {photoUploadError}
+                  </p>
+                )}
+
+                {photoUploading && (
+                  <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Uploading photo...
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -488,10 +588,14 @@ const UpdateProfile = () => {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || photoUploading}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-4 rounded-2xl transition-all duration-200 shadow-md shadow-blue-100 hover:shadow-lg hover:shadow-blue-200"
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {photoUploading
+              ? "Uploading photo..."
+              : loading
+                ? "Saving..."
+                : "Save Changes"}
           </button>
         </form>
       </div>
