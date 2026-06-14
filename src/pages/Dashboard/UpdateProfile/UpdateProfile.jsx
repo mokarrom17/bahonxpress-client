@@ -251,7 +251,7 @@ const UpdateProfile = () => {
           </p>
 
           <h1 className="text-white text-5xl font-black tracking-tight mt-1">
-            Update Profile
+            Profile
           </h1>
         </div>
 
