@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 
 import Swal from "sweetalert2";
@@ -10,6 +10,7 @@ import {
   FaChevronUp,
   FaBoxOpen,
   FaMoneyBillWave,
+  FaSearch,
 } from "react-icons/fa";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,8 +25,18 @@ const MyParcels = () => {
 
   const navigate = useNavigate();
 
-  // 🔥 Tracking toggle state
+  // ==========================================
+  // State
+  // ==========================================
   const [openId, setOpenId] = useState(null);
+
+  const [searchText, setSearchText] = useState("");
+
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 10;
 
   const MotionDiv = motion.div;
 
@@ -64,12 +75,44 @@ const MyParcels = () => {
   });
 
   /* --------------------------------------------------
+     Filter + Search
+  -------------------------------------------------- */
+  const filteredParcels = useMemo(() => {
+    return parcels.filter((p) => {
+      const trackingId = p.trackingId?.toLowerCase() || "";
+
+      const receiverName = p.receiverName?.toLowerCase() || "";
+
+      const search = searchText.toLowerCase();
+
+      const matchesSearch =
+        trackingId.includes(search) || receiverName.includes(search);
+
+      const matchesStatus =
+        statusFilter === "all" || p.delivery_status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [parcels, searchText, statusFilter]);
+
+  /* --------------------------------------------------
+     Pagination
+  -------------------------------------------------- */
+  const totalPages = Math.ceil(filteredParcels.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+
+  const paginatedParcels = filteredParcels.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
+
+  /* --------------------------------------------------
      Toggle Tracking
   -------------------------------------------------- */
   const handleView = (id) => {
     setOpenId(openId === id ? null : id);
 
-    // 🔥 smooth scroll
     setTimeout(() => {
       const el = document.getElementById(`tracking-${id}`);
 
@@ -134,13 +177,13 @@ const MyParcels = () => {
   }
 
   return (
-    <div className="bg-base-100 rounded-2xl shadow p-5 lg:p-7">
+    <div className="bg-base-100 rounded-3xl shadow-sm border border-base-200 p-5 lg:p-7">
       {/* --------------------------------------------------
            Header
       -------------------------------------------------- */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-bold flex items-center gap-3">
+          <h2 className="text-3xl font-black flex items-center gap-3">
             <FaBoxOpen className="text-black" />
             My Parcels
           </h2>
@@ -149,35 +192,82 @@ const MyParcels = () => {
         </div>
 
         {/* Count */}
-        <div className="bg-black/10 border border-black/20 rounded-2xl px-5 py-3 w-fit">
-          <p className="text-xs text-black font-medium">Total Parcels</p>
+        <div className="bg-black/5 border border-black/10 rounded-2xl px-5 py-3 w-fit">
+          <p className="text-xs text-gray-500 font-medium">Total Parcels</p>
 
-          <h3 className="text-2xl font-bold text-black">{parcels.length}</h3>
+          <h3 className="text-2xl font-black text-black">
+            {filteredParcels.length}
+          </h3>
         </div>
+      </div>
+
+      {/* --------------------------------------------------
+           Search + Filter
+      -------------------------------------------------- */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-8">
+        {/* Search */}
+        <div className="relative w-full lg:max-w-md">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+
+          <input
+            type="text"
+            placeholder="Search tracking ID or receiver..."
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input input-bordered w-full pl-11 rounded-2xl"
+          />
+        </div>
+
+        {/* Filter */}
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="select select-bordered rounded-2xl w-full lg:w-56"
+        >
+          <option value="all">All Status</option>
+
+          <option value="pending">Pending</option>
+
+          <option value="picked">Picked</option>
+
+          <option value="rider_assigned">Rider Assigned</option>
+
+          <option value="in_transit">In Transit</option>
+
+          <option value="delivered">Delivered</option>
+        </select>
       </div>
 
       {/* --------------------------------------------------
            Empty State
       -------------------------------------------------- */}
-      {parcels.length === 0 && (
-        <div className="text-center py-20 border rounded-2xl bg-base-200/40">
-          <p className="text-5xl mb-4">📦</p>
+      {filteredParcels.length === 0 && (
+        <div className="text-center py-24 border rounded-3xl bg-base-200/30">
+          <p className="text-6xl mb-5">📦</p>
 
-          <h3 className="text-xl font-semibold mb-2">No Parcels Found</h3>
+          <h3 className="text-2xl font-bold mb-3">No Matching Parcels Found</h3>
 
-          <p className="text-gray-400">You have not created any parcels yet.</p>
+          <p className="text-gray-400">
+            Try changing your search or filter options.
+          </p>
         </div>
       )}
 
       {/* --------------------------------------------------
            Parcel List
       -------------------------------------------------- */}
-      {parcels.length > 0 && (
+      {filteredParcels.length > 0 && (
         <div className="space-y-5">
-          {parcels.map((p) => (
+          {paginatedParcels.map((p) => (
             <div
               key={p._id}
-              className="border border-base-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
+              className="border border-base-200 rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300"
             >
               {/* --------------------------------------------------
                    Main Card
@@ -191,6 +281,13 @@ const MyParcels = () => {
                     <p className="font-mono font-semibold text-sm break-all">
                       {p.trackingId}
                     </p>
+                  </div>
+
+                  {/* Receiver */}
+                  <div className="lg:col-span-2">
+                    <p className="text-xs text-gray-400 mb-1">Receiver</p>
+
+                    <p className="font-semibold">{p.receiverName}</p>
                   </div>
 
                   {/* Type */}
@@ -262,21 +359,21 @@ const MyParcels = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="lg:col-span-2 flex flex-wrap gap-2 justify-start lg:justify-end">
+                  <div className="lg:col-span-12 flex flex-wrap gap-2 justify-end pt-2">
                     {/* Track Button */}
                     <button
                       onClick={() => handleView(p._id)}
-                      className="btn btn-sm btn-outline btn-black gap-2"
+                      className="btn btn-sm btn-outline btn-black gap-2 rounded-xl"
                     >
                       {openId === p._id ? (
                         <>
                           <FaChevronUp />
-                          Hide
+                          Hide Tracking
                         </>
                       ) : (
                         <>
                           <FaChevronDown />
-                          Track
+                          Track Parcel
                         </>
                       )}
                     </button>
@@ -285,10 +382,10 @@ const MyParcels = () => {
                     {p.paymentStatus?.toLowerCase() === "unpaid" && (
                       <button
                         onClick={() => handlePay(p._id)}
-                        className="btn btn-sm btn-success gap-2 text-white"
+                        className="btn btn-sm btn-success gap-2 text-white rounded-xl"
                       >
                         <FaMoneyBillWave />
-                        Pay
+                        Pay Now
                       </button>
                     )}
 
@@ -297,9 +394,9 @@ const MyParcels = () => {
                       p.paymentStatus !== "paid" && (
                         <button
                           onClick={() => handleDelete(p._id)}
-                          className="btn btn-sm btn-error text-white"
+                          className="btn btn-sm btn-error text-white rounded-xl"
                         >
-                          Cancel
+                          Cancel Parcel
                         </button>
                       )}
                   </div>
@@ -361,6 +458,27 @@ const MyParcels = () => {
               </AnimatePresence>
             </div>
           ))}
+
+          {/* --------------------------------------------------
+               Pagination
+          -------------------------------------------------- */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-10 flex-wrap">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`btn btn-sm rounded-xl ${
+                    currentPage === i + 1
+                      ? "bg-black text-white border-black"
+                      : "btn-outline"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

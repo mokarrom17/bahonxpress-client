@@ -17,3 +17,13 @@
   --color-accent: #606060;
   --color-neutral: #1f1f1f;
 }
+
+/* Chrome dark mode fix */
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #ffffff;
+  color: #111827;
+}

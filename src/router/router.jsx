@@ -29,6 +29,7 @@ import MyEarnings from "../pages/Dashboard/MyEarnings/MyEarnings";
 import DashboardHome from "../pages/Dashboard/DashboardHome/DashboardHome";
 import UpdateProfile from "../pages/Dashboard/UpdateProfile/UpdateProfile";
 import ForgotPassword from "../pages/Authentication/ForgotPassword/ForgotPassword";
+import NotFound from "../pages/NotFound/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -190,5 +191,9 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "*",
+    component: NotFound,
   },
 ]);

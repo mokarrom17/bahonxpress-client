@@ -277,7 +277,7 @@ const MyEarnings = () => {
           <div className="rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm">
             <p className="text-sm text-gray-500">Completed Deliveries</p>
 
-            <h3 className="text-4xl font-black text-primary mt-3">
+            <h3 className="text-4xl font-bold text-primary mt-3">
               {parcels.length}
             </h3>
           </div>
