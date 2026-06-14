@@ -85,7 +85,7 @@ Password:
 
 ### Home Page
 
-![Home](./public/screenshots/home.png)
+![Home](./public/screenshots/Home.png)
 
 
 ### Admin Dashboard
